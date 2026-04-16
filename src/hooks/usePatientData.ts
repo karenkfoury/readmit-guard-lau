@@ -19,14 +19,14 @@ export function usePatientData(patientId: string | undefined) {
     if (!patientId) return;
     setLoading(true);
     const [mr, v, med, ml, ci, rs, n, ehr, cm, sl, appt] = await Promise.all([
-      supabase.from('medical_records').select('*').eq('patient_id', patientId).order('created_at', { ascending: false }).limit(1).single(),
+      supabase.from('medical_records').select('*').eq('patient_id', patientId).order('created_at', { ascending: false }).limit(1).maybeSingle(),
       supabase.from('vitals').select('*').eq('patient_id', patientId).order('recorded_at', { ascending: false }),
       supabase.from('medications').select('*').eq('patient_id', patientId).eq('active', true),
       supabase.from('medication_logs').select('*').eq('patient_id', patientId).order('scheduled_at', { ascending: false }),
       supabase.from('check_ins').select('*').eq('patient_id', patientId).order('day_number', { ascending: true }),
       supabase.from('risk_scores').select('*').eq('patient_id', patientId).order('calculated_at', { ascending: false }),
       supabase.from('notifications').select('*').eq('patient_id', patientId).order('created_at', { ascending: false }),
-      supabase.from('ehr_intake_responses').select('*').eq('patient_id', patientId).single(),
+      supabase.from('ehr_intake_responses').select('*').eq('patient_id', patientId).maybeSingle(),
       supabase.from('chat_messages').select('*').eq('patient_id', patientId).order('created_at', { ascending: true }),
       supabase.from('symptom_logs').select('*').eq('patient_id', patientId).order('logged_at', { ascending: false }),
       supabase.from('appointments').select('*').eq('patient_id', patientId).order('scheduled_at', { ascending: true }),
