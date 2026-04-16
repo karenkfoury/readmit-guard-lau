@@ -134,6 +134,7 @@ function LoginPage() {
               </div>
             </div>
 
+            {signupSuccess && <p className="text-sm text-primary font-body">Account created! Check your email to confirm, then sign in.</p>}
             {error && <p className="text-sm text-risk-high font-body">{error}</p>}
 
             <button type="submit" disabled={loading}
