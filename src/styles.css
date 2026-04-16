@@ -47,68 +47,91 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* LAU brand tokens */
   --color-risk-low: var(--risk-low);
   --color-risk-moderate: var(--risk-moderate);
   --color-risk-high: var(--risk-high);
+  --color-risk-low-bg: var(--risk-low-bg);
+  --color-risk-moderate-bg: var(--risk-moderate-bg);
+  --color-risk-high-bg: var(--risk-high-bg);
   --color-lau-green: var(--lau-green);
   --color-lau-green-dark: var(--lau-green-dark);
-  --color-lau-green-light: var(--lau-green-light);
+  --color-lau-green-deep: var(--lau-green-deep);
+  --color-lau-anthracite: var(--lau-anthracite);
   --color-lau-bg: var(--lau-bg);
   --color-lau-border: var(--lau-border);
+  --color-lau-green-tint: var(--lau-green-tint);
+  --color-lau-teal: var(--lau-teal);
+  --color-lau-green-mid: var(--lau-green-mid);
+  --color-lau-lime: var(--lau-lime);
+  --color-lau-forest: var(--lau-forest);
+
   --font-heading: var(--font-heading);
   --font-body: var(--font-body);
 }
 
 :root {
   --radius: 0.75rem;
-  --font-heading: 'Raleway', sans-serif;
-  --font-body: 'PT Sans', sans-serif;
+  --font-heading: 'Raleway', system-ui, sans-serif;
+  --font-body: 'PT Sans', system-ui, sans-serif;
 
-  /* LAU Brand */
-  --lau-green: oklch(0.38 0.08 166);
-  --lau-green-dark: oklch(0.30 0.06 166);
-  --lau-green-light: oklch(0.62 0.12 166);
-  --lau-bg: oklch(0.975 0.005 155);
-  --lau-border: oklch(0.89 0.015 160);
+  /* ═══ LAU PRIMARY PALETTE ═══ */
+  --lau-green: #006751;
+  --lau-green-dark: #004C45;
+  --lau-green-deep: #00843D;
+  --lau-anthracite: #3A3E3F;
+  --lau-bg: #F7FAF9;
+  --lau-border: #D9E3DF;
+  --lau-green-tint: #E8F4F0;
 
-  /* Risk */
-  --risk-low: oklch(0.60 0.18 145);
-  --risk-moderate: oklch(0.77 0.16 75);
-  --risk-high: oklch(0.55 0.22 25);
+  /* ═══ LAU SECONDARY ACCENTS ═══ */
+  --lau-teal: #00AB8E;
+  --lau-green-mid: #00C389;
+  --lau-lime: #78BE20;
+  --lau-forest: #004C45;
 
-  /* Semantic mapped to LAU */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.30 0.015 200);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.30 0.015 200);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.30 0.015 200);
-  --primary: oklch(0.38 0.08 166);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.96 0.008 160);
-  --secondary-foreground: oklch(0.30 0.015 200);
-  --muted: oklch(0.96 0.008 160);
-  --muted-foreground: oklch(0.50 0.02 200);
-  --accent: oklch(0.96 0.008 160);
-  --accent-foreground: oklch(0.30 0.015 200);
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.89 0.015 160);
-  --input: oklch(0.89 0.015 160);
-  --ring: oklch(0.38 0.08 166);
-  --chart-1: oklch(0.38 0.08 166);
-  --chart-2: oklch(0.62 0.12 166);
-  --chart-3: oklch(0.60 0.18 145);
-  --chart-4: oklch(0.77 0.16 75);
-  --chart-5: oklch(0.55 0.22 25);
-  --sidebar: oklch(0.975 0.005 155);
-  --sidebar-foreground: oklch(0.30 0.015 200);
-  --sidebar-primary: oklch(0.38 0.08 166);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.96 0.008 160);
-  --sidebar-accent-foreground: oklch(0.30 0.015 200);
-  --sidebar-border: oklch(0.89 0.015 160);
-  --sidebar-ring: oklch(0.38 0.08 166);
+  /* ═══ CLINICAL RISK ═══ */
+  --risk-low: #16A34A;
+  --risk-moderate: #F59E0B;
+  --risk-high: #DC2626;
+  --risk-low-bg: #DCFCE7;
+  --risk-moderate-bg: #FEF3C7;
+  --risk-high-bg: #FEE2E2;
+
+  /* ═══ SEMANTIC (mapped to LAU) ═══ */
+  --background: #FFFFFF;
+  --foreground: #3A3E3F;
+  --card: #FFFFFF;
+  --card-foreground: #3A3E3F;
+  --popover: #FFFFFF;
+  --popover-foreground: #3A3E3F;
+  --primary: #006751;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F7FAF9;
+  --secondary-foreground: #3A3E3F;
+  --muted: #F7FAF9;
+  --muted-foreground: #6B7280;
+  --accent: #E8F4F0;
+  --accent-foreground: #3A3E3F;
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
+  --border: #D9E3DF;
+  --input: #D9E3DF;
+  --ring: #006751;
+  --chart-1: #006751;
+  --chart-2: #00AB8E;
+  --chart-3: #78BE20;
+  --chart-4: #F59E0B;
+  --chart-5: #DC2626;
+  --sidebar: #F7FAF9;
+  --sidebar-foreground: #3A3E3F;
+  --sidebar-primary: #006751;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #E8F4F0;
+  --sidebar-accent-foreground: #3A3E3F;
+  --sidebar-border: #D9E3DF;
+  --sidebar-ring: #006751;
 }
 
 @layer base {
