@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          created_at: string
+          created_by: Database["public"]["Enums"]["appointment_created_by"]
+          doctor_id: string
+          duration_minutes: number
+          follow_up_type: Database["public"]["Enums"]["followup_type"]
+          id: string
+          notes: string | null
+          patient_id: string
+          reason: string | null
+          scheduled_at: string
+          status: Database["public"]["Enums"]["appointment_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: Database["public"]["Enums"]["appointment_created_by"]
+          doctor_id: string
+          duration_minutes?: number
+          follow_up_type?: Database["public"]["Enums"]["followup_type"]
+          id?: string
+          notes?: string | null
+          patient_id: string
+          reason?: string | null
+          scheduled_at: string
+          status?: Database["public"]["Enums"]["appointment_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: Database["public"]["Enums"]["appointment_created_by"]
+          doctor_id?: string
+          duration_minutes?: number
+          follow_up_type?: Database["public"]["Enums"]["followup_type"]
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          reason?: string | null
+          scheduled_at?: string
+          status?: Database["public"]["Enums"]["appointment_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           content: string
@@ -86,6 +146,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "check_ins_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checklist_completions: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          id: string
+          patient_id: string
+          recovery_day: number
+          task_reference_id: string | null
+          task_type: Database["public"]["Enums"]["checklist_task_type"]
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          id?: string
+          patient_id: string
+          recovery_day: number
+          task_reference_id?: string | null
+          task_type: Database["public"]["Enums"]["checklist_task_type"]
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          id?: string
+          patient_id?: string
+          recovery_day?: number
+          task_reference_id?: string | null
+          task_type?: Database["public"]["Enums"]["checklist_task_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_completions_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -412,6 +510,59 @@ export type Database = {
           },
         ]
       }
+      symptom_logs: {
+        Row: {
+          felt_worse: boolean
+          id: string
+          logged_at: string
+          notes: string | null
+          overall_feeling: number
+          pain_level: number
+          patient_id: string
+          risk_delta: number | null
+          shortness_of_breath: Database["public"]["Enums"]["sob_level"]
+          swelling_fatigue_flags: string[] | null
+          urgency: Database["public"]["Enums"]["urgency_level"]
+          worse_description: string | null
+        }
+        Insert: {
+          felt_worse?: boolean
+          id?: string
+          logged_at?: string
+          notes?: string | null
+          overall_feeling: number
+          pain_level?: number
+          patient_id: string
+          risk_delta?: number | null
+          shortness_of_breath?: Database["public"]["Enums"]["sob_level"]
+          swelling_fatigue_flags?: string[] | null
+          urgency?: Database["public"]["Enums"]["urgency_level"]
+          worse_description?: string | null
+        }
+        Update: {
+          felt_worse?: boolean
+          id?: string
+          logged_at?: string
+          notes?: string | null
+          overall_feeling?: number
+          pain_level?: number
+          patient_id?: string
+          risk_delta?: number | null
+          shortness_of_breath?: Database["public"]["Enums"]["sob_level"]
+          swelling_fatigue_flags?: string[] | null
+          urgency?: Database["public"]["Enums"]["urgency_level"]
+          worse_description?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "symptom_logs_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vitals: {
         Row: {
           blood_glucose: number | null
@@ -485,8 +636,16 @@ export type Database = {
       }
     }
     Enums: {
+      appointment_created_by: "doctor" | "system" | "patient_request"
+      appointment_status: "scheduled" | "completed" | "cancelled" | "no_show"
       chat_role: "user" | "assistant" | "system"
       checkin_status: "upcoming" | "pending" | "completed" | "missed"
+      checklist_task_type:
+        | "medication"
+        | "followup"
+        | "checkup_form"
+        | "symptom_log"
+      followup_type: "in_person" | "telehealth" | "phone_call"
       notification_type:
         | "medication_reminder"
         | "checkin_due"
@@ -499,6 +658,8 @@ export type Database = {
         | "checkin_day_14"
         | "chatbot"
         | "manual"
+      sob_level: "none" | "mild" | "moderate" | "severe"
+      urgency_level: "low" | "medium" | "high"
       user_role: "patient" | "doctor"
       vitals_source: "hospital" | "patient_self_report" | "chatbot_extracted"
     }
@@ -628,8 +789,17 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      appointment_created_by: ["doctor", "system", "patient_request"],
+      appointment_status: ["scheduled", "completed", "cancelled", "no_show"],
       chat_role: ["user", "assistant", "system"],
       checkin_status: ["upcoming", "pending", "completed", "missed"],
+      checklist_task_type: [
+        "medication",
+        "followup",
+        "checkup_form",
+        "symptom_log",
+      ],
+      followup_type: ["in_person", "telehealth", "phone_call"],
       notification_type: [
         "medication_reminder",
         "checkin_due",
@@ -644,6 +814,8 @@ export const Constants = {
         "chatbot",
         "manual",
       ],
+      sob_level: ["none", "mild", "moderate", "severe"],
+      urgency_level: ["low", "medium", "high"],
       user_role: ["patient", "doctor"],
       vitals_source: ["hospital", "patient_self_report", "chatbot_extracted"],
     },
