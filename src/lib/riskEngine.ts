@@ -57,8 +57,8 @@ export function generateCarePlan(patient: Patient): CarePlan {
 }
 
 export function shouldTriggerAlert(currentScore: number, previousScore?: number): boolean {
-  if (previousScore === undefined) return currentScore >= 50;
-  if (previousScore < 50 && currentScore >= 50) return true;
+  if (previousScore === undefined) return currentScore > 70;
+  if (previousScore <= 70 && currentScore > 70) return true;
   if (currentScore - previousScore >= 15) return true;
   return false;
 }
