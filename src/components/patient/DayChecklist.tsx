@@ -1,6 +1,13 @@
 import { Link } from '@tanstack/react-router';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Pill, ClipboardList, Stethoscope } from 'lucide-react';
+import { Pill, ClipboardList, Stethoscope, Calendar } from 'lucide-react';
+
+interface Appointment {
+  id: string;
+  doctor_name?: string;
+  scheduled_at: string;
+  reason?: string;
+}
 
 interface DayChecklistProps {
   dayNumber: number;
@@ -11,6 +18,9 @@ interface DayChecklistProps {
   medsTotal: number;
   checkInStatus: 'upcoming' | 'pending' | 'completed' | 'missed' | null;
   onLogSymptoms?: () => void;
+  appointments?: Appointment[];
+  checklistCompletions?: Record<string, boolean>;
+  onToggleTask?: (taskType: string, refId?: string) => void;
 }
 
 const checkUpDetails: Record<number, string> = {
@@ -27,6 +37,9 @@ export function DayChecklist({
   medsTakenCount,
   medsTotal,
   checkInStatus,
+  appointments = [],
+  checklistCompletions = {},
+  onToggleTask,
 }: DayChecklistProps) {
   const isCheckUpDay = [3, 7, 14].includes(dayNumber);
   const checkUpDone = checkInStatus === 'completed';
@@ -34,15 +47,18 @@ export function DayChecklist({
   return (
     <div className={`flex-1 rounded-2xl border p-4 ${
       isCurrentDay
-        ? 'border-primary/30 bg-card shadow-sm'
-        : 'border-lau-border bg-card/60'
+        ? 'border-l-4 border-l-primary border-primary/30 bg-card shadow-md p-5'
+        : isPast
+          ? 'border-lau-border bg-card/60 opacity-90'
+          : 'border-lau-border bg-card/60 opacity-90'
     }`}>
       <div className="space-y-3">
         {/* Medication task */}
-        <Link to="/patient/medications" className="flex items-start gap-3 group">
+        <Link to="/patient/medications" className="flex items-start gap-3 group min-h-[44px]">
           <Checkbox
             checked={allMedsTaken}
-            className="mt-0.5 pointer-events-none"
+            className="mt-0.5 pointer-events-none h-6 w-6 rounded-md"
+            aria-checked={allMedsTaken}
           />
           <div className="flex-1">
             <p className={`text-sm font-body font-semibold ${allMedsTaken ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
@@ -59,16 +75,40 @@ export function DayChecklist({
           <Pill className="h-4 w-4 text-primary/60 mt-0.5" />
         </Link>
 
+        {/* Appointment tasks */}
+        {appointments.map(appt => {
+          const time = new Date(appt.scheduled_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+          const done = checklistCompletions[`followup_${appt.id}`] || false;
+          return (
+            <div key={appt.id} className="flex items-start gap-3 min-h-[44px]">
+              <Checkbox
+                checked={done}
+                onCheckedChange={() => onToggleTask?.('followup', appt.id)}
+                className="mt-0.5 h-6 w-6 rounded-md"
+                aria-checked={done}
+              />
+              <div className="flex-1">
+                <p className={`text-sm font-body font-semibold ${done ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
+                  Follow-up{appt.doctor_name ? ` with ${appt.doctor_name}` : ''} at {time}
+                </p>
+                {appt.reason && <p className="text-xs text-muted-foreground font-body">{appt.reason}</p>}
+              </div>
+              <Calendar className="h-4 w-4 text-primary/60 mt-0.5" />
+            </div>
+          );
+        })}
+
         {/* Check-up form task */}
         {isCheckUpDay && (
           <Link
             to="/patient/checkin/$day"
             params={{ day: String(dayNumber) }}
-            className="flex items-start gap-3 group"
+            className="flex items-start gap-3 group min-h-[44px]"
           >
             <Checkbox
               checked={checkUpDone}
-              className="mt-0.5 pointer-events-none"
+              className="mt-0.5 pointer-events-none h-6 w-6 rounded-md"
+              aria-checked={checkUpDone}
             />
             <div className="flex-1">
               <p className={`text-sm font-body font-semibold ${checkUpDone ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
@@ -84,8 +124,8 @@ export function DayChecklist({
 
         {/* Symptom log reminder for current day */}
         {isCurrentDay && (
-          <div className="flex items-start gap-3 opacity-60">
-            <Checkbox checked={false} className="mt-0.5 pointer-events-none" disabled />
+          <div className="flex items-start gap-3 opacity-60 min-h-[44px]">
+            <Checkbox checked={false} className="mt-0.5 pointer-events-none h-6 w-6 rounded-md" disabled />
             <div className="flex-1">
               <p className="text-sm font-body text-muted-foreground">Log symptoms</p>
               <p className="text-xs text-muted-foreground font-body">Use the button below</p>
