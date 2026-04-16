@@ -12,15 +12,15 @@ interface Profile {
   phone: string | null;
 }
 
-const PROFILE_RETRY_DELAYS = [0, 150, 400, 800];
-
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function buildFallbackProfile(user: User): Profile {
   const role = user.user_metadata?.role === 'doctor' ? 'doctor' : 'patient';
-  const fullName = typeof user.user_metadata?.full_name === 'string' && user.user_metadata.full_name.trim().length > 0
-    ? user.user_metadata.full_name
-    : user.email?.split('@')[0] ?? '';
+  const fullName =
+    typeof user.user_metadata?.full_name === 'string' &&
+    user.user_metadata.full_name.trim().length > 0
+      ? user.user_metadata.full_name
+      : (user.email?.split('@')[0] ?? '');
 
   return {
     id: user.id,
@@ -33,93 +33,80 @@ function buildFallbackProfile(user: User): Profile {
   };
 }
 
+async function fetchProfileOnce(userId: string): Promise<Profile | null> {
+  const { data } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .maybeSingle();
+  return data as Profile | null;
+}
+
+async function fetchProfileWithRetry(user: User): Promise<Profile> {
+  const profile = await fetchProfileOnce(user.id);
+  if (profile) return profile;
+
+  // One retry after 300ms (covers signup trigger delay)
+  await wait(300);
+  const retry = await fetchProfileOnce(user.id);
+  return retry ?? buildFallbackProfile(user);
+}
+
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const requestIdRef = useRef(0);
 
-  const fetchProfile = useCallback(async (authUser: User): Promise<Profile> => {
-    const fallbackProfile = buildFallbackProfile(authUser);
+  const syncUser = useCallback(async (authUser: User | null, requestId: number) => {
+    setUser(authUser);
 
-    for (const delay of PROFILE_RETRY_DELAYS) {
-      if (delay > 0) {
-        await wait(delay);
-      }
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', authUser.id)
-        .maybeSingle();
-
-      if (data) {
-        return data as Profile;
-      }
-
-      if (error && error.code !== 'PGRST116') {
-        console.warn('Unable to load profile during auth sync', error.message);
-      }
-    }
-
-    return fallbackProfile;
-  }, []);
-
-  const syncAuthState = useCallback((nextUser: User | null) => {
-    const requestId = ++requestIdRef.current;
-
-    setUser(nextUser);
-
-    if (!nextUser) {
+    if (!authUser) {
       setProfile(null);
       setLoading(false);
       return;
     }
 
-    setLoading(true);
-
-    void fetchProfile(nextUser)
-      .then((nextProfile) => {
-        if (requestId !== requestIdRef.current) return;
-        setProfile(nextProfile);
-      })
-      .catch(() => {
-        if (requestId !== requestIdRef.current) return;
-        setProfile(buildFallbackProfile(nextUser));
-      })
-      .finally(() => {
-        if (requestId !== requestIdRef.current) return;
-        setLoading(false);
-      });
-  }, [fetchProfile]);
+    try {
+      const p = await fetchProfileWithRetry(authUser);
+      if (requestIdRef.current !== requestId) return;
+      setProfile(p);
+    } catch {
+      if (requestIdRef.current !== requestId) return;
+      setProfile(buildFallbackProfile(authUser));
+    } finally {
+      if (requestIdRef.current !== requestId) return;
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let isMounted = true;
+    let mounted = true;
 
-    const handleAuthChange = (nextUser: User | null) => {
-      if (!isMounted) return;
-      syncAuthState(nextUser);
-    };
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      handleAuthChange(session?.user ?? null);
+    // 1. Restore session first
+    const rid = ++requestIdRef.current;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      syncUser(session?.user ?? null, rid);
+    }).catch(() => {
+      if (!mounted) return;
+      setLoading(false);
     });
 
-    void supabase.auth.getSession()
-      .then(({ data: { session } }) => {
-        handleAuthChange(session?.user ?? null);
-      })
-      .catch(() => {
-        if (!isMounted) return;
-        setLoading(false);
-      });
+    // 2. Listen for subsequent auth changes, skip INITIAL_SESSION
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
+      if (event === 'INITIAL_SESSION') return; // already handled by getSession
+      const newRid = ++requestIdRef.current;
+      syncUser(session?.user ?? null, newRid);
+    });
 
     return () => {
-      isMounted = false;
-      requestIdRef.current += 1;
+      mounted = false;
+      requestIdRef.current++;
       subscription.unsubscribe();
     };
-  }, [syncAuthState]);
+  }, [syncUser]);
 
   const signUp = async (email: string, password: string, fullName: string, role: 'patient' | 'doctor') => {
     const { data, error } = await supabase.auth.signUp({
