@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Users, Stethoscope, Mail, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,7 +11,7 @@ export const Route = createFileRoute('/login')({
 });
 
 function LoginPage() {
-  const { signIn, signUp, user, profile } = useAuth();
+  const { signIn, signUp, user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [selectedRole, setSelectedRole] = useState<'patient' | 'doctor'>('patient');
@@ -20,29 +20,49 @@ function LoginPage() {
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [signupSuccess, setSignupSuccess] = useState(false);
 
-  if (user && profile) {
-    navigate({ to: profile.role === 'doctor' ? '/doctor' : '/patient' });
-  }
+  useEffect(() => {
+    if (!authLoading && user && profile) {
+      navigate({ to: profile.role === 'doctor' ? '/doctor' : '/patient' });
+    }
+  }, [authLoading, user, profile, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    if (mode === 'signup') {
-      const { error: err } = await signUp(email, password, fullName, selectedRole);
+    try {
+      if (mode === 'signup') {
+        const { error: err } = await signUp(email, password, fullName, selectedRole);
+        if (err) { setError(err.message); setLoading(false); return; }
+        // After signup, sign in automatically
+        const { data, error: signInErr } = await signIn(email, password);
+        if (signInErr) {
+          // If sign-in fails (e.g. email not confirmed), show success message
+          setSignupSuccess(true);
+          setLoading(false);
+          return;
+        }
+        if (data.user) {
+          navigate({ to: selectedRole === 'doctor' ? '/doctor' : '/patient' });
+        }
+        setLoading(false);
+        return;
+      }
+
+      const { data, error: err } = await signIn(email, password);
       if (err) { setError(err.message); setLoading(false); return; }
-    }
 
-    const { data, error: err } = await signIn(email, password);
-    if (err) { setError(err.message); setLoading(false); return; }
-
-    if (data.user) {
-      const { supabase } = await import('@/integrations/supabase/client');
-      const { data: prof } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
-      const role = prof?.role || selectedRole;
-      navigate({ to: role === 'doctor' ? '/doctor' : '/patient' });
+      if (data.user) {
+        const { supabase } = await import('@/integrations/supabase/client');
+        const { data: prof } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
+        const role = prof?.role || selectedRole;
+        navigate({ to: role === 'doctor' ? '/doctor' : '/patient' });
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Something went wrong');
     }
     setLoading(false);
   };
@@ -114,6 +134,7 @@ function LoginPage() {
               </div>
             </div>
 
+            {signupSuccess && <p className="text-sm text-primary font-body">Account created! Check your email to confirm, then sign in.</p>}
             {error && <p className="text-sm text-risk-high font-body">{error}</p>}
 
             <button type="submit" disabled={loading}
