@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
+let channelCounter = 0;
 import { supabase } from '@/integrations/supabase/client';
 
 export function usePatientData(patientId: string | undefined) {
@@ -50,7 +52,8 @@ export function usePatientData(patientId: string | undefined) {
   // Realtime subscriptions
   useEffect(() => {
     if (!patientId) return;
-    const channel = supabase.channel(`patient-${patientId}`)
+    const channelId = `patient-${patientId}-${++channelCounter}`;
+    const channel = supabase.channel(channelId)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'risk_scores', filter: `patient_id=eq.${patientId}` }, () => refresh())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `patient_id=eq.${patientId}` }, () => refresh())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'vitals', filter: `patient_id=eq.${patientId}` }, () => refresh())
