@@ -35,18 +35,16 @@ function LoginPage() {
 
     try {
       if (mode === 'signup') {
-        const { error: err } = await signUp(email, password, fullName, selectedRole);
+        const { data, error: err } = await signUp(email, password, fullName, selectedRole);
         if (err) { setError(err.message); setLoading(false); return; }
-        // After signup, sign in automatically
-        const { data, error: signInErr } = await signIn(email, password);
-        if (signInErr) {
-          // If sign-in fails (e.g. email not confirmed), show success message
-          setSignupSuccess(true);
-          setLoading(false);
-          return;
-        }
-        if (data.user) {
+        // Auto-confirm is on, so signup returns a session.
+        // Wait briefly for the profile trigger to complete, then navigate.
+        if (data.session) {
+          await new Promise(r => setTimeout(r, 500));
           navigate({ to: selectedRole === 'doctor' ? '/doctor' : '/patient' });
+        } else {
+          // Email confirmation required
+          setSignupSuccess(true);
         }
         setLoading(false);
         return;
@@ -56,6 +54,8 @@ function LoginPage() {
       if (err) { setError(err.message); setLoading(false); return; }
 
       if (data.user) {
+        // Wait briefly for profile to be available
+        await new Promise(r => setTimeout(r, 300));
         const { supabase } = await import('@/integrations/supabase/client');
         const { data: prof } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
         const role = prof?.role || selectedRole;
@@ -63,6 +63,7 @@ function LoginPage() {
       }
     } catch (err: any) {
       setError(err?.message || 'Something went wrong');
+    }
     }
     setLoading(false);
   };
