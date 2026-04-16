@@ -45,6 +45,8 @@ export interface Patient {
   carePlan?: CarePlan;
   assignedClinician?: string;
   avatar?: string;
+  phone?: string;
+  email?: string;
 }
 
 export interface Clinician {

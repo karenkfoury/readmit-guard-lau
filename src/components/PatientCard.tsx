@@ -7,8 +7,8 @@ import { motion } from 'framer-motion';
 
 export function PatientCard({ patient, index = 0 }: { patient: Patient; index?: number }) {
   const latestCheckIn = patient.checkIns.filter(c => c.status === 'completed').pop();
-  const needsFollowUp = patient.riskScore >= 50;
-  const isHigh = patient.riskScore >= 50;
+  const needsFollowUp = patient.riskScore > 70;
+  const isHigh = patient.riskScore > 70;
 
   return (
     <motion.div

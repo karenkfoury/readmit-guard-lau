@@ -15,6 +15,7 @@ export const patients: Patient[] = [
   {
     id: 'p1', name: 'Sarah Chen', age: 68, gender: 'F',
     diagnosis: 'Heart Failure (CHF)',
+    phone: '+961 71 234 567', email: 'sarah.chen@email.com',
     comorbidities: ['Type 2 Diabetes', 'Hypertension'],
     dischargeDate: '2026-04-10', priorAdmissions: 3,
     medications: ['Lisinopril', 'Metformin', 'Furosemide', 'Carvedilol', 'Aspirin', 'Atorvastatin'],
@@ -43,6 +44,7 @@ export const patients: Patient[] = [
   {
     id: 'p2', name: 'John Mansour', age: 54, gender: 'M',
     diagnosis: 'Type 2 Diabetes',
+    phone: '+961 70 345 678', email: 'john.mansour@email.com',
     comorbidities: ['Obesity'],
     dischargeDate: '2026-04-06', priorAdmissions: 1,
     medications: ['Metformin', 'Glipizide', 'Lisinopril', 'Simvastatin'],
@@ -65,6 +67,7 @@ export const patients: Patient[] = [
   {
     id: 'p3', name: 'Maya Khoury', age: 72, gender: 'F',
     diagnosis: 'Pneumonia Recovery',
+    phone: '+961 76 456 789', email: 'maya.khoury@email.com',
     comorbidities: ['Asthma'],
     dischargeDate: '2026-04-04', priorAdmissions: 0,
     medications: ['Amoxicillin', 'Albuterol', 'Prednisone'],
@@ -85,6 +88,7 @@ export const patients: Patient[] = [
   {
     id: 'p4', name: 'Karim Saade', age: 61, gender: 'M',
     diagnosis: 'Hypertension + Heart Disease',
+    phone: '+961 78 567 890', email: 'karim.saade@email.com',
     comorbidities: ['Coronary Artery Disease', 'Hyperlipidemia'],
     dischargeDate: '2026-04-08', priorAdmissions: 2,
     medications: ['Amlodipine', 'Metoprolol', 'Atorvastatin', 'Aspirin', 'Clopidogrel', 'Nitroglycerin'],
@@ -110,6 +114,7 @@ export const patients: Patient[] = [
   {
     id: 'p5', name: 'Leila Abboud', age: 78, gender: 'F',
     diagnosis: 'COPD Exacerbation',
+    phone: '+961 03 678 901', email: 'leila.abboud@email.com',
     comorbidities: ['Heart Failure', 'Osteoporosis'],
     dischargeDate: '2026-04-12', priorAdmissions: 4,
     medications: ['Tiotropium', 'Budesonide', 'Furosemide', 'Lisinopril', 'Calcium', 'Vitamin D'],
@@ -135,6 +140,7 @@ export const patients: Patient[] = [
   {
     id: 'p6', name: 'Hassan Tabbara', age: 45, gender: 'M',
     diagnosis: 'Sepsis Recovery',
+    phone: '+961 71 789 012', email: 'hassan.tabbara@email.com',
     comorbidities: [],
     dischargeDate: '2026-04-11', priorAdmissions: 0,
     medications: ['Ciprofloxacin', 'Acetaminophen'],
@@ -151,6 +157,7 @@ export const patients: Patient[] = [
   {
     id: 'p7', name: 'Rima Fares', age: 66, gender: 'F',
     diagnosis: 'Hip Replacement Recovery',
+    phone: '+961 70 890 123', email: 'rima.fares@email.com',
     comorbidities: ['Osteoarthritis'],
     dischargeDate: '2026-04-09', priorAdmissions: 1,
     medications: ['Oxycodone', 'Ibuprofen', 'Enoxaparin', 'Acetaminophen'],
@@ -171,6 +178,7 @@ export const patients: Patient[] = [
   {
     id: 'p8', name: 'Omar Zeitoun', age: 73, gender: 'M',
     diagnosis: 'Ischemic Stroke',
+    phone: '+961 76 901 234', email: 'omar.zeitoun@email.com',
     comorbidities: ['Atrial Fibrillation', 'Hypertension'],
     dischargeDate: '2026-04-07', priorAdmissions: 1,
     medications: ['Warfarin', 'Amlodipine', 'Metoprolol', 'Atorvastatin', 'Aspirin'],
@@ -192,6 +200,7 @@ export const patients: Patient[] = [
   {
     id: 'p9', name: 'Nadine Baz', age: 58, gender: 'F',
     diagnosis: 'Chronic Kidney Disease',
+    phone: '+961 78 012 345', email: 'nadine.baz@email.com',
     comorbidities: ['Diabetes', 'Anemia'],
     dischargeDate: '2026-04-10', priorAdmissions: 2,
     medications: ['Erythropoietin', 'Insulin', 'Ferrous Sulfate', 'Calcium Acetate', 'Amlodipine'],
@@ -214,6 +223,7 @@ export const patients: Patient[] = [
   {
     id: 'p10', name: 'Tony Sarkis', age: 80, gender: 'M',
     diagnosis: 'Heart Failure (CHF)',
+    phone: '+961 03 123 456', email: 'tony.sarkis@email.com',
     comorbidities: ['COPD', 'Chronic Kidney Disease'],
     dischargeDate: '2026-04-13', priorAdmissions: 5,
     medications: ['Furosemide', 'Lisinopril', 'Carvedilol', 'Digoxin', 'Spironolactone', 'Albuterol', 'Warfarin'],
@@ -239,6 +249,7 @@ export const patients: Patient[] = [
   {
     id: 'p11', name: 'Amal Dagher', age: 55, gender: 'F',
     diagnosis: 'Post-Surgical (Cholecystectomy)',
+    phone: '+961 71 234 890', email: 'amal.dagher@email.com',
     comorbidities: ['Obesity'],
     dischargeDate: '2026-04-14', priorAdmissions: 0,
     medications: ['Ibuprofen', 'Omeprazole'],
@@ -255,6 +266,7 @@ export const patients: Patient[] = [
   {
     id: 'p12', name: 'Fadi Gemayel', age: 62, gender: 'M',
     diagnosis: 'Acute Pancreatitis',
+    phone: '+961 76 345 901', email: 'fadi.gemayel@email.com',
     comorbidities: ['Gallstones', 'Hyperlipidemia'],
     dischargeDate: '2026-04-12', priorAdmissions: 1,
     medications: ['Pancrelipase', 'Omeprazole', 'Acetaminophen'],
@@ -274,6 +286,7 @@ export const patients: Patient[] = [
   {
     id: 'p13', name: 'Hala Nasrallah', age: 70, gender: 'F',
     diagnosis: 'Atrial Fibrillation',
+    phone: '+961 03 456 012', email: 'hala.nasrallah@email.com',
     comorbidities: ['Hypertension', 'Heart Failure'],
     dischargeDate: '2026-04-05', priorAdmissions: 3,
     medications: ['Apixaban', 'Metoprolol', 'Furosemide', 'Lisinopril', 'Digoxin'],
@@ -296,6 +309,7 @@ export const patients: Patient[] = [
   {
     id: 'p14', name: 'Walid Karam', age: 47, gender: 'M',
     diagnosis: 'Community-Acquired Pneumonia',
+    phone: '+961 78 567 123', email: 'walid.karam@email.com',
     comorbidities: [],
     dischargeDate: '2026-04-13', priorAdmissions: 0,
     medications: ['Azithromycin', 'Acetaminophen', 'Guaifenesin'],

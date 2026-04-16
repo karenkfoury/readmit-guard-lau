@@ -1,13 +1,15 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Phone, Calendar, UserCheck, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Phone, Mail, Calendar, UserCheck, MessageSquare, Plus, Activity, Thermometer, Heart } from 'lucide-react';
 import { LAUHeader } from '@/components/LAUHeader';
 import { RiskGauge } from '@/components/RiskGauge';
 import { RiskBadge } from '@/components/RiskBadge';
 import { Footer } from '@/components/layout/Footer';
 import { useStore } from '@/store/useStore';
+import { getRiskLevel } from '@/lib/riskEngine';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/doctor/patient/$id')({
   component: PatientDetail,
@@ -18,9 +20,13 @@ function PatientDetail() {
   const patient = useStore((s) => s.patients.find(p => p.id === id));
   const updateFollowUp = useStore((s) => s.updateFollowUp);
   const incrementPrevented = useStore((s) => s.incrementPrevented);
+  const addFollowUp = useStore((s) => s.addFollowUp);
   const followUps = useStore((s) => s.followUps);
   const [tab, setTab] = useState<'overview' | 'timeline' | 'surveys' | 'careplan'>('overview');
   const [scheduled, setScheduled] = useState(false);
+  const [showScheduleForm, setShowScheduleForm] = useState(false);
+  const [scheduleDate, setScheduleDate] = useState('');
+  const [scheduleReason, setScheduleReason] = useState('');
 
   if (!patient) {
     return (
@@ -35,6 +41,7 @@ function PatientDetail() {
 
   const topFactors = patient.riskFactors.slice(0, 5);
   const factorColors = (points: number) => points >= 15 ? '#DC2626' : points >= 10 ? '#F59E0B' : '#16A34A';
+  const riskLevel = getRiskLevel(patient.riskScore);
 
   const handleSchedule = () => {
     const fu = followUps.find(f => f.patientId === patient.id && f.status !== 'completed');
@@ -42,6 +49,30 @@ function PatientDetail() {
     incrementPrevented();
     setScheduled(true);
   };
+
+  const handleAddToSchedule = () => {
+    if (!scheduleDate) return;
+    const newFollowUp = {
+      id: `f-new-${Date.now()}`,
+      patientId: patient.id,
+      patientName: patient.name,
+      riskScore: patient.riskScore,
+      reason: scheduleReason || 'Doctor-scheduled follow-up',
+      suggestedDate: scheduleDate,
+      priority: riskLevel === 'high' ? 'urgent' as const : riskLevel === 'moderate' ? 'high' as const : 'medium' as const,
+      assignedClinician: 'Dr. Karim Haddad',
+      status: 'upcoming' as const,
+    };
+    addFollowUp(newFollowUp);
+    toast.success(`${patient.name} added to schedule for ${scheduleDate}`);
+    setShowScheduleForm(false);
+    setScheduleDate('');
+    setScheduleReason('');
+  };
+
+  // Latest check-in data for vitals summary
+  const latestCompleted = patient.checkIns.filter(c => c.status === 'completed').pop();
+  const latestResponses = latestCompleted?.responses || {};
 
   return (
     <div className="min-h-screen bg-lau-bg flex flex-col">
@@ -68,6 +99,21 @@ function PatientDetail() {
                 </div>
               </div>
             </div>
+
+            {/* Contact Info */}
+            <div className="flex flex-wrap gap-4 mb-4 p-3 rounded-xl bg-lau-bg border border-lau-border">
+              {patient.phone && (
+                <a href={`tel:${patient.phone}`} className="inline-flex items-center gap-2 text-sm font-body text-primary hover:underline">
+                  <Phone className="h-4 w-4" strokeWidth={1.75} /> {patient.phone}
+                </a>
+              )}
+              {patient.email && (
+                <a href={`mailto:${patient.email}`} className="inline-flex items-center gap-2 text-sm font-body text-primary hover:underline">
+                  <Mail className="h-4 w-4" strokeWidth={1.75} /> {patient.email}
+                </a>
+              )}
+            </div>
+
             <div className="grid grid-cols-3 gap-4 text-center">
               <div className="bg-lau-bg rounded-xl p-3"><p className="text-xs text-muted-foreground font-body">Discharged</p><p className="font-semibold text-sm font-body text-lau-anthracite">{patient.dischargeDate}</p></div>
               <div className="bg-lau-bg rounded-xl p-3"><p className="text-xs text-muted-foreground font-body">Prior Admissions</p><p className="font-semibold text-sm font-body text-lau-anthracite">{patient.priorAdmissions}</p></div>
@@ -77,13 +123,124 @@ function PatientDetail() {
 
           <div className="rounded-2xl border border-lau-border bg-card p-6 shadow-sm flex flex-col items-center justify-center">
             <RiskGauge score={patient.riskScore} size={180} />
+            <div className={`mt-2 text-xs font-heading font-bold uppercase tracking-wide ${
+              riskLevel === 'high' ? 'text-risk-high' : riskLevel === 'moderate' ? 'text-risk-moderate' : 'text-risk-low'
+            }`}>
+              {riskLevel} risk
+            </div>
           </div>
         </div>
+
+        {/* Latest Vitals / Status Summary */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-lau-border bg-card p-6 shadow-sm mb-6">
+          <h2 className="font-heading text-lg font-bold text-lau-anthracite mb-4 flex items-center gap-2">
+            <Activity className="h-5 w-5 text-primary" strokeWidth={1.75} /> Current Status
+          </h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-lau-bg rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-1">
+                <Thermometer className="h-4 w-4 text-primary/60" strokeWidth={1.75} />
+                <p className="text-xs text-muted-foreground font-body">Symptoms</p>
+              </div>
+              <p className="font-body font-semibold text-sm text-lau-anthracite capitalize">
+                {(latestResponses.symptomsStatus as string) || 'No data'}
+              </p>
+            </div>
+            <div className="bg-lau-bg rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-1">
+                <Heart className="h-4 w-4 text-primary/60" strokeWidth={1.75} />
+                <p className="text-xs text-muted-foreground font-body">Shortness of Breath</p>
+              </div>
+              <p className="font-body font-semibold text-sm text-lau-anthracite capitalize">
+                {(latestResponses.shortnessOfBreath as string) || 'No data'}
+              </p>
+            </div>
+            <div className="bg-lau-bg rounded-xl p-4">
+              <p className="text-xs text-muted-foreground font-body mb-1">Weight (kg)</p>
+              <p className="font-body font-semibold text-sm text-lau-anthracite tabular-nums">
+                {latestResponses.weight ? `${latestResponses.weight} kg` : 'No data'}
+              </p>
+            </div>
+            <div className="bg-lau-bg rounded-xl p-4">
+              <p className="text-xs text-muted-foreground font-body mb-1">Latest Check-In</p>
+              <p className="font-body font-semibold text-sm text-lau-anthracite">
+                {latestCompleted ? `Day ${latestCompleted.day}` : 'None yet'}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Add to Schedule */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+          className="rounded-2xl border border-lau-border bg-card p-6 shadow-sm mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-heading text-lg font-bold text-lau-anthracite flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" strokeWidth={1.75} /> Schedule
+            </h2>
+            {!showScheduleForm && (
+              <button onClick={() => setShowScheduleForm(true)}
+                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-heading font-semibold hover:bg-lau-green-dark transition-all active:scale-[0.98]">
+                <Plus className="h-4 w-4" strokeWidth={1.75} /> Add to Schedule
+              </button>
+            )}
+          </div>
+
+          {showScheduleForm && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+              className="space-y-3 p-4 rounded-xl bg-lau-bg border border-lau-border mb-4">
+              <div>
+                <label className="text-sm font-body font-semibold text-lau-anthracite mb-1 block">Date</label>
+                <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)}
+                  className="w-full px-4 py-2 rounded-xl border border-lau-border bg-white text-sm font-body focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+              </div>
+              <div>
+                <label className="text-sm font-body font-semibold text-lau-anthracite mb-1 block">Reason (optional)</label>
+                <input type="text" value={scheduleReason} onChange={e => setScheduleReason(e.target.value)}
+                  placeholder="e.g. Follow-up review"
+                  className="w-full px-4 py-2 rounded-xl border border-lau-border bg-white text-sm font-body focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+              </div>
+              <div className="flex gap-2">
+                <button onClick={handleAddToSchedule} disabled={!scheduleDate}
+                  className="bg-primary text-primary-foreground px-5 py-2 rounded-full text-sm font-heading font-semibold hover:bg-lau-green-dark transition-all disabled:opacity-50">
+                  Confirm
+                </button>
+                <button onClick={() => setShowScheduleForm(false)}
+                  className="border border-lau-border px-4 py-2 rounded-full text-sm font-body text-lau-anthracite hover:bg-lau-green-tint transition-colors">
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Existing follow-ups for this patient */}
+          {followUps.filter(f => f.patientId === patient.id).length > 0 ? (
+            <div className="space-y-2">
+              {followUps.filter(f => f.patientId === patient.id).map(f => (
+                <div key={f.id} className={`flex items-center justify-between p-3 rounded-xl border border-lau-border ${f.status === 'completed' ? 'opacity-50' : ''}`}>
+                  <div>
+                    <p className="text-sm font-body font-semibold text-lau-anthracite">{f.reason}</p>
+                    <p className="text-xs text-muted-foreground font-body">📅 {f.suggestedDate} · {f.assignedClinician}</p>
+                  </div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase ${
+                    f.status === 'completed' ? 'bg-risk-low-bg text-risk-low' :
+                    f.priority === 'urgent' ? 'bg-risk-high-bg text-risk-high' :
+                    'bg-lau-green-tint text-primary'
+                  }`}>
+                    {f.status === 'completed' ? 'Done' : f.priority}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground font-body">No follow-ups scheduled</p>
+          )}
+        </motion.div>
 
         {topFactors.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
             className="rounded-2xl border border-lau-border bg-card p-6 shadow-sm mb-6">
-            <h2 className="font-heading text-lg font-bold text-lau-anthracite mb-4">Why This Patient is {patient.riskScore >= 50 ? 'High' : 'At'} Risk</h2>
+            <h2 className="font-heading text-lg font-bold text-lau-anthracite mb-4">Why This Patient is {riskLevel === 'high' ? 'High' : 'At'} Risk</h2>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={topFactors} layout="vertical" margin={{ left: 10, right: 30 }}>
@@ -210,6 +367,20 @@ function PatientDetail() {
                     <p className="font-body text-lau-anthracite">{patient.carePlan.reason}</p>
                   </div>
 
+                  {/* Notification routing info */}
+                  <div className="bg-lau-green-tint rounded-xl p-4 border border-primary/20">
+                    <p className="text-xs font-heading font-semibold text-primary mb-1">
+                      {riskLevel === 'high' ? '🔴 High Risk — Doctor notified immediately' :
+                       riskLevel === 'moderate' ? '🟡 Intermediate Risk — Staff assigned for monitoring' :
+                       '🟢 Low Risk — Passive monitoring only'}
+                    </p>
+                    <p className="text-xs text-muted-foreground font-body">
+                      {riskLevel === 'high' ? `${patient.carePlan.suggestedAssignee} and supporting staff have been alerted.` :
+                       riskLevel === 'moderate' ? `${patient.carePlan.suggestedAssignee} is monitoring this patient.` :
+                       'No urgent action needed. Patient visible on dashboard.'}
+                    </p>
+                  </div>
+
                   <div className="flex flex-wrap gap-3 pt-2">
                     {!scheduled ? (
                       <button onClick={handleSchedule} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-full font-heading font-semibold hover:bg-lau-green-dark hover:shadow-md transition-all active:scale-[0.98]">
@@ -221,9 +392,11 @@ function PatientDetail() {
                         <UserCheck className="h-4 w-4" strokeWidth={1.75} /> ✓ Follow-Up Scheduled — Readmission Prevented!
                       </motion.div>
                     )}
-                    <button className="inline-flex items-center gap-2 border border-lau-border px-4 py-2 rounded-full font-body text-sm text-lau-anthracite hover:bg-lau-green-tint transition-colors">
-                      <Phone className="h-4 w-4" strokeWidth={1.75} /> Call Patient
-                    </button>
+                    {patient.phone && (
+                      <a href={`tel:${patient.phone}`} className="inline-flex items-center gap-2 border border-lau-border px-4 py-2 rounded-full font-body text-sm text-lau-anthracite hover:bg-lau-green-tint transition-colors">
+                        <Phone className="h-4 w-4" strokeWidth={1.75} /> Call Patient
+                      </a>
+                    )}
                     <button className="inline-flex items-center gap-2 border border-lau-border px-4 py-2 rounded-full font-body text-sm text-lau-anthracite hover:bg-lau-green-tint transition-colors">
                       <MessageSquare className="h-4 w-4" strokeWidth={1.75} /> Add Note
                     </button>
