@@ -1,32 +1,36 @@
 
 
-# Fix Login & Signup Blocking Issue
+# Fix Patient Tab Errors
 
-## Problem
-The `useAuth` hook has a race condition: both `onAuthStateChange` (INITIAL_SESSION event) and `getSession()` fire on mount, each calling `syncAuthState`. The second call increments `requestIdRef`, which invalidates the first call's profile fetch results. Then the second call starts its own profile fetch with retry delays (0 + 150 + 400 + 800ms). This causes the `loading` state to stay `true` for an extended period, blocking the login form from rendering and blocking post-login redirects.
+## Root Cause
 
-## Fix — Rewrite `useAuth` hook
+Two issues are crashing the patient tabs:
 
-**File: `src/hooks/useAuth.ts`**
+1. **Duplicate realtime channel**: `usePatientData(user?.id)` is called in both the parent layout (`patient.tsx`) AND the child route (`patient.index.tsx`). Both instances create a Supabase realtime channel with the same name (`patient-{id}`), causing the error: *"cannot add postgres_changes callbacks after subscribe()"*.
 
-Replace the current dual-trigger pattern with a clean sequential approach:
+2. **`.single()` without data**: `medical_records` and `ehr_intake_responses` queries use `.single()` which throws when no row exists.
 
-1. **Call `getSession()` first** to restore any existing session, set user/profile, and mark `loading = false`
-2. **Then subscribe to `onAuthStateChange`** only for subsequent events (SIGNED_IN, SIGNED_OUT, TOKEN_REFRESHED) — skip the INITIAL_SESSION event since `getSession()` already handled it
-3. **Remove retry delays for profile fetch on login** — fetch profile once; if it fails, use the fallback profile immediately (the trigger creates the profile synchronously, so it should be available instantly)
-4. **Keep one simple retry** (single 300ms wait + one retry) only for signup flows where the trigger might have a slight delay
+## Fix
 
-### Simplified flow:
-```
-Mount → getSession() → if session exists, fetch profile (single attempt) → set state → loading = false
-onAuthStateChange (SIGNED_IN) → fetch profile (single attempt + 1 retry) → set state
-```
+### 1. `src/hooks/usePatientData.ts` — Fix realtime and queries
 
-### Key changes:
-- Remove `PROFILE_RETRY_DELAYS` array with 4 entries; replace with at most 1 retry after 300ms
-- In `useEffect`, call `getSession()` first, then set up `onAuthStateChange` and skip `INITIAL_SESSION` event to avoid double-processing
-- Keep the `requestIdRef` race-condition guard but eliminate the source of the double-fire
-- Keep `buildFallbackProfile` as immediate fallback if profile fetch fails
+- Replace `.single()` with `.maybeSingle()` on `medical_records` and `ehr_intake_responses` queries to handle missing data gracefully.
+- Add a unique suffix to the channel name using a `useRef` counter (e.g., `patient-${patientId}-${instanceId}`) so multiple hook instances don't collide. Alternatively, merge the two `useEffect` hooks into one so the channel is built and subscribed atomically.
 
-**File: `src/routes/login.tsx`** — No changes needed; the current code is clean. The fix is entirely in the hook.
+### 2. `src/routes/patient.tsx` — Remove duplicate data fetch
+
+- The layout only needs `ehrIntake` (for the intake redirect) and `notifications` (for the badge count).
+- Replace the full `usePatientData` call with two lightweight, targeted queries (one for `ehr_intake_responses`, one for `notifications`) that do NOT create realtime channels. This eliminates the duplicate channel entirely.
+- This is the cleanest fix: keep `usePatientData` with realtime only in child routes that actually need the full dataset.
+
+### 3. `src/routes/patient.index.tsx` — No changes needed
+
+The child route's `usePatientData` call is fine on its own once the parent stops creating a competing channel.
+
+## Files Changed
+
+| File | Change |
+|------|--------|
+| `src/routes/patient.tsx` | Replace `usePatientData` with two simple queries for `ehrIntake` and `notifications` |
+| `src/hooks/usePatientData.ts` | Change `.single()` → `.maybeSingle()` on two queries |
 
