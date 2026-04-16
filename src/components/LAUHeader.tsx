@@ -1,12 +1,14 @@
 import { Link, useLocation } from '@tanstack/react-router';
-import { Bell } from 'lucide-react';
+import { Bell, LogOut } from 'lucide-react';
 import { useStore } from '@/store/useStore';
+import { useAuth } from '@/hooks/useAuth';
 import { LAUHealthLockup } from '@/components/brand/LAULogo';
 
 export function LAUHeader() {
   const role = useStore((s) => s.role);
   const alerts = useStore((s) => s.alerts);
   const unacknowledged = alerts.filter(a => !a.acknowledged).length;
+  const { profile, signOut } = useAuth();
 
   return (
     <header className="bg-white border-b border-lau-border sticky top-0 z-50 h-[72px]">
@@ -55,20 +57,28 @@ export function LAUHeader() {
               </Link>
               <div className="flex items-center gap-2 bg-lau-green-tint rounded-full px-3 py-1.5">
                 <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-                  KH
+                  {(profile?.full_name ?? 'Dr').slice(0, 2).toUpperCase()}
                 </div>
-                <span className="text-sm font-body text-lau-anthracite hidden sm:inline">Dr. Haddad</span>
+                <span className="text-sm font-body text-lau-anthracite hidden sm:inline">{profile?.full_name ?? 'Doctor'}</span>
               </div>
+              <button onClick={signOut} className="p-2 rounded-full text-lau-anthracite/70 hover:bg-lau-green-tint hover:text-lau-anthracite transition-colors" title="Sign out">
+                <LogOut className="h-4 w-4" strokeWidth={1.75} />
+              </button>
             </>
           )}
 
           {role === 'patient' && (
-            <div className="flex items-center gap-2 bg-lau-green-tint rounded-full px-3 py-1.5">
-              <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-                SC
+            <>
+              <div className="flex items-center gap-2 bg-lau-green-tint rounded-full px-3 py-1.5">
+                <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
+                  {(profile?.full_name ?? 'P').slice(0, 2).toUpperCase()}
+                </div>
+                <span className="text-sm font-body text-lau-anthracite hidden sm:inline">{profile?.full_name ?? 'Patient'}</span>
               </div>
-              <span className="text-sm font-body text-lau-anthracite hidden sm:inline">Sarah</span>
-            </div>
+              <button onClick={signOut} className="p-2 rounded-full text-lau-anthracite/70 hover:bg-lau-green-tint hover:text-lau-anthracite transition-colors" title="Sign out">
+                <LogOut className="h-4 w-4" strokeWidth={1.75} />
+              </button>
+            </>
           )}
         </div>
       </div>
