@@ -7,7 +7,7 @@ import { RiskGauge } from '@/components/RiskGauge';
 import { RiskBadge } from '@/components/RiskBadge';
 import { Footer } from '@/components/layout/Footer';
 import { useStore } from '@/store/useStore';
-import { getRiskLevel } from '@/lib/riskEngine';
+import { getRiskLevel, getRiskCategoryLabel, getNotificationTarget } from '@/lib/riskEngine';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
 import { toast } from 'sonner';
 
@@ -42,6 +42,8 @@ function PatientDetail() {
   const topFactors = patient.riskFactors.slice(0, 5);
   const factorColors = (points: number) => points >= 15 ? '#DC2626' : points >= 10 ? '#F59E0B' : '#16A34A';
   const riskLevel = getRiskLevel(patient.riskScore);
+  const riskCategoryLabel = getRiskCategoryLabel(patient.riskScore);
+  const notificationTarget = getNotificationTarget(patient.riskScore);
 
   const handleSchedule = () => {
     const fu = followUps.find(f => f.patientId === patient.id && f.status !== 'completed');
@@ -126,8 +128,11 @@ function PatientDetail() {
             <div className={`mt-2 text-xs font-heading font-bold uppercase tracking-wide ${
               riskLevel === 'high' ? 'text-risk-high' : riskLevel === 'moderate' ? 'text-risk-moderate' : 'text-risk-low'
             }`}>
-              {riskLevel} risk
+              {riskCategoryLabel}
             </div>
+            <p className="text-[10px] text-muted-foreground font-body mt-1 text-center">
+              {notificationTarget.urgency} → {notificationTarget.target}
+            </p>
           </div>
         </div>
 

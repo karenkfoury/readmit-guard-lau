@@ -1,8 +1,9 @@
-import { getRiskLevel } from '@/lib/riskEngine';
+import { getRiskLevel, getRiskCategoryLabel } from '@/lib/riskEngine';
 import { cn } from '@/lib/utils';
 
 export function RiskBadge({ score, size = 'default' }: { score: number; size?: 'sm' | 'default' | 'lg' }) {
   const level = getRiskLevel(score);
+  const label = level === 'high' ? 'High' : level === 'moderate' ? 'Intermediate' : 'Low';
   const sizeClasses = { sm: 'text-xs px-2 py-0.5', default: 'text-xs px-3 py-1', lg: 'text-sm px-3.5 py-1' };
   return (
     <span className={cn(
@@ -18,7 +19,7 @@ export function RiskBadge({ score, size = 'default' }: { score: number; size?: '
         level === 'moderate' && 'bg-risk-moderate',
         level === 'low' && 'bg-risk-low',
       )} />
-      {score}% <span className="capitalize">{level}</span>
+      {score}% {label}
     </span>
   );
 }

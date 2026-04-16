@@ -40,6 +40,18 @@ export function getRiskLevel(score: number): 'low' | 'moderate' | 'high' {
   return 'low';
 }
 
+export function getRiskCategoryLabel(score: number): string {
+  if (score > 70) return 'High Risk';
+  if (score >= 40) return 'Intermediate Risk';
+  return 'Low Risk';
+}
+
+export function getNotificationTarget(score: number): { target: string; urgency: string } {
+  if (score > 70) return { target: 'Doctor + Supporting Staff', urgency: 'Immediate notification' };
+  if (score >= 40) return { target: 'Assigned Staff', urgency: 'Monitoring / follow-up review' };
+  return { target: 'Dashboard only', urgency: 'No urgent alert' };
+}
+
 export function generateCarePlan(patient: Patient): CarePlan {
   const latestCheckIn = patient.checkIns.filter(c => c.status === 'completed').pop();
   const r = latestCheckIn?.responses || {};
