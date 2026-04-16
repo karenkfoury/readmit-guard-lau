@@ -31,40 +31,34 @@ function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSignupSuccess(false);
     setLoading(true);
 
     try {
       if (mode === 'signup') {
         const { data, error: err } = await signUp(email, password, fullName, selectedRole);
-        if (err) { setError(err.message); setLoading(false); return; }
-        // Auto-confirm is on, so signup returns a session.
-        // Wait briefly for the profile trigger to complete, then navigate.
-        if (data.session) {
-          await new Promise(r => setTimeout(r, 500));
-          navigate({ to: selectedRole === 'doctor' ? '/doctor' : '/patient' });
-        } else {
-          // Email confirmation required
+        if (err) {
+          setError(err.message);
+          return;
+        }
+
+        if (!data.session) {
           setSignupSuccess(true);
         }
-        setLoading(false);
+
         return;
       }
 
-      const { data, error: err } = await signIn(email, password);
-      if (err) { setError(err.message); setLoading(false); return; }
-
-      if (data.user) {
-        // Wait briefly for profile to be available
-        await new Promise(r => setTimeout(r, 300));
-        const { supabase } = await import('@/integrations/supabase/client');
-        const { data: prof } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
-        const role = prof?.role || selectedRole;
-        navigate({ to: role === 'doctor' ? '/doctor' : '/patient' });
+      const { error: err } = await signIn(email, password);
+      if (err) {
+        setError(err.message);
+        return;
       }
     } catch (err: any) {
       setError(err?.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   if (authLoading) {
