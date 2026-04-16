@@ -249,6 +249,7 @@ export const patients: Patient[] = [
   {
     id: 'p11', name: 'Amal Dagher', age: 55, gender: 'F',
     diagnosis: 'Post-Surgical (Cholecystectomy)',
+    phone: '+961 71 234 890', email: 'amal.dagher@email.com',
     comorbidities: ['Obesity'],
     dischargeDate: '2026-04-14', priorAdmissions: 0,
     medications: ['Ibuprofen', 'Omeprazole'],
@@ -265,6 +266,7 @@ export const patients: Patient[] = [
   {
     id: 'p12', name: 'Fadi Gemayel', age: 62, gender: 'M',
     diagnosis: 'Acute Pancreatitis',
+    phone: '+961 76 345 901', email: 'fadi.gemayel@email.com',
     comorbidities: ['Gallstones', 'Hyperlipidemia'],
     dischargeDate: '2026-04-12', priorAdmissions: 1,
     medications: ['Pancrelipase', 'Omeprazole', 'Acetaminophen'],
@@ -284,6 +286,7 @@ export const patients: Patient[] = [
   {
     id: 'p13', name: 'Hala Nasrallah', age: 70, gender: 'F',
     diagnosis: 'Atrial Fibrillation',
+    phone: '+961 03 456 012', email: 'hala.nasrallah@email.com',
     comorbidities: ['Hypertension', 'Heart Failure'],
     dischargeDate: '2026-04-05', priorAdmissions: 3,
     medications: ['Apixaban', 'Metoprolol', 'Furosemide', 'Lisinopril', 'Digoxin'],
@@ -306,6 +309,7 @@ export const patients: Patient[] = [
   {
     id: 'p14', name: 'Walid Karam', age: 47, gender: 'M',
     diagnosis: 'Community-Acquired Pneumonia',
+    phone: '+961 78 567 123', email: 'walid.karam@email.com',
     comorbidities: [],
     dischargeDate: '2026-04-13', priorAdmissions: 0,
     medications: ['Azithromycin', 'Acetaminophen', 'Guaifenesin'],

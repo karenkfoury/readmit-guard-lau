@@ -25,7 +25,7 @@ function DoctorDashboard() {
   const [search, setSearch] = useState('');
   const [view, setView] = useState<'grid' | 'list'>('grid');
 
-  const highRisk = patients.filter(p => p.riskScore >= 50);
+  const highRisk = patients.filter(p => p.riskScore > 70);
   const pendingFollowUps = followUps.filter(f => f.status === 'today');
   const checkInsThisWeek = patients.reduce((sum, p) => sum + p.checkIns.filter(c => c.status === 'completed').length, 0);
 
@@ -34,7 +34,7 @@ function DoctorDashboard() {
       if (filter === 'high') return getRiskLevel(p.riskScore) === 'high';
       if (filter === 'moderate') return getRiskLevel(p.riskScore) === 'moderate';
       if (filter === 'low') return getRiskLevel(p.riskScore) === 'low';
-      if (filter === 'followup') return p.riskScore >= 50;
+      if (filter === 'followup') return p.riskScore > 70;
       return true;
     })
     .filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.diagnosis.toLowerCase().includes(search.toLowerCase()))
@@ -65,7 +65,7 @@ function DoctorDashboard() {
         {/* KPI Row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <KPICard label="Patients Monitored" value={patients.length} icon={<Users className="h-6 w-6" strokeWidth={1.75} />} />
-          <KPICard label="High Risk (>50%)" value={highRisk.length} icon={<AlertTriangle className="h-6 w-6" strokeWidth={1.75} />} />
+          <KPICard label="High Risk (>70%)" value={highRisk.length} icon={<AlertTriangle className="h-6 w-6" strokeWidth={1.75} />} />
           <KPICard label="Follow-Ups Today" value={pendingFollowUps.length} icon={<Clock className="h-6 w-6" strokeWidth={1.75} />} />
           <KPICard label="Check-Ins This Week" value={checkInsThisWeek} icon={<CheckCircle className="h-6 w-6" strokeWidth={1.75} />} />
         </div>
