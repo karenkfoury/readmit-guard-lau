@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, AlertTriangle, Clock, CheckCircle, Search, LayoutGrid, List } from 'lucide-react';
@@ -8,6 +8,7 @@ import { PatientCard } from '@/components/PatientCard';
 import { RiskBadge } from '@/components/RiskBadge';
 import { Footer } from '@/components/layout/Footer';
 import { useStore } from '@/store/useStore';
+import { useAuth } from '@/hooks/useAuth';
 import { getRiskLevel } from '@/lib/riskEngine';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
@@ -16,8 +17,16 @@ export const Route = createFileRoute('/doctor')({
 });
 
 function DoctorDashboard() {
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const setRole = useStore((s) => s.setRole);
   setRole('doctor');
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate({ to: '/login' });
+    }
+  }, [authLoading, user]);
 
   const patients = useStore((s) => s.patients);
   const followUps = useStore((s) => s.followUps);
