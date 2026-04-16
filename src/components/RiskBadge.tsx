@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 
 export function RiskBadge({ score, size = 'default' }: { score: number; size?: 'sm' | 'default' | 'lg' }) {
   const level = getRiskLevel(score);
-  const label = level === 'high' ? 'High' : level === 'moderate' ? 'Intermediate' : 'Low';
+  const label = level === 'high' ? 'HIGH RISK' : level === 'moderate' ? 'INTERMEDIATE' : 'LOW RISK';
   const sizeClasses = { sm: 'text-xs px-2 py-0.5', default: 'text-xs px-3 py-1', lg: 'text-sm px-3.5 py-1' };
   return (
     <span className={cn(

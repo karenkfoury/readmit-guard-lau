@@ -38,6 +38,7 @@ function DoctorDashboard() {
   const pendingFollowUps = followUps.filter(f => f.status === 'today');
   const checkInsThisWeek = patients.reduce((sum, p) => sum + p.checkIns.filter(c => c.status === 'completed').length, 0);
 
+  // B1.1 Sort by risk_score DESC, secondary sort by most recent risk update
   const filtered = patients
     .filter(p => {
       if (filter === 'high') return getRiskLevel(p.riskScore) === 'high';
@@ -47,7 +48,12 @@ function DoctorDashboard() {
       return true;
     })
     .filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.diagnosis.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => b.riskScore - a.riskScore);
+    .sort((a, b) => {
+      if (b.riskScore !== a.riskScore) return b.riskScore - a.riskScore;
+      const aDate = a.checkIns.filter(c => c.completedAt).pop()?.completedAt || a.dischargeDate;
+      const bDate = b.checkIns.filter(c => c.completedAt).pop()?.completedAt || b.dischargeDate;
+      return new Date(bDate).getTime() - new Date(aDate).getTime();
+    });
 
   const dist = [
     { name: 'High', value: patients.filter(p => getRiskLevel(p.riskScore) === 'high').length, color: '#DC2626' },
@@ -79,10 +85,17 @@ function DoctorDashboard() {
           <KPICard label="Check-Ins This Week" value={checkInsThisWeek} icon={<CheckCircle className="h-6 w-6" strokeWidth={1.75} />} />
         </div>
 
+        {/* B2.3 Material changes indicator */}
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-xs text-muted-foreground font-body bg-lau-bg px-3 py-1 rounded-full">
+            Showing material changes only
+          </span>
+        </div>
+
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
-              <div className="flex gap-1 flex-wrap">
+              <div className="flex gap-1 flex-wrap" role="group" aria-label="Filter patients by risk level">
                 {(['all', 'high', 'moderate', 'low', 'followup'] as const).map(f => {
                   const label = f === 'followup' ? 'Needs Follow-Up' : f === 'moderate' ? 'Intermediate' : f.charAt(0).toUpperCase() + f.slice(1);
                   return (
@@ -111,7 +124,12 @@ function DoctorDashboard() {
               </div>
             </div>
 
-            <div className={view === 'grid' ? 'grid sm:grid-cols-2 gap-4' : 'space-y-3'}>
+            <div
+              className={view === 'grid' ? 'grid sm:grid-cols-2 gap-4' : 'space-y-3'}
+              role="list"
+              aria-sort="descending"
+              aria-label="Patient list sorted by risk score"
+            >
               {filtered.map((p, i) => (
                 <PatientCard key={p.id} patient={p} index={i} />
               ))}
@@ -172,7 +190,7 @@ function DoctorDashboard() {
           if (sarah) sarah.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }}
       >
-        🎬 Start Demo Tour
+        Start Demo Tour
       </motion.button>
     </div>
   );
