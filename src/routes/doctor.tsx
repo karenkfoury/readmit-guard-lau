@@ -51,7 +51,7 @@ function DoctorDashboard() {
 
   const dist = [
     { name: 'High', value: patients.filter(p => getRiskLevel(p.riskScore) === 'high').length, color: '#DC2626' },
-    { name: 'Moderate', value: patients.filter(p => getRiskLevel(p.riskScore) === 'moderate').length, color: '#F59E0B' },
+    { name: 'Intermediate', value: patients.filter(p => getRiskLevel(p.riskScore) === 'moderate').length, color: '#F59E0B' },
     { name: 'Low', value: patients.filter(p => getRiskLevel(p.riskScore) === 'low').length, color: '#16A34A' },
   ];
 
@@ -83,12 +83,15 @@ function DoctorDashboard() {
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
               <div className="flex gap-1 flex-wrap">
-                {(['all', 'high', 'moderate', 'low', 'followup'] as const).map(f => (
-                  <button key={f} onClick={() => setFilter(f)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-heading font-semibold transition-all ${filter === f ? 'bg-primary text-primary-foreground' : 'bg-card border border-lau-border text-lau-anthracite hover:bg-lau-green-tint'}`}>
-                    {f === 'followup' ? 'Needs Follow-Up' : f.charAt(0).toUpperCase() + f.slice(1)}
-                  </button>
-                ))}
+                {(['all', 'high', 'moderate', 'low', 'followup'] as const).map(f => {
+                  const label = f === 'followup' ? 'Needs Follow-Up' : f === 'moderate' ? 'Intermediate' : f.charAt(0).toUpperCase() + f.slice(1);
+                  return (
+                    <button key={f} onClick={() => setFilter(f)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-heading font-semibold transition-all ${filter === f ? 'bg-primary text-primary-foreground' : 'bg-card border border-lau-border text-lau-anthracite hover:bg-lau-green-tint'}`}>
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
               <div className="flex items-center gap-2 ml-auto">
                 <div className="relative">
