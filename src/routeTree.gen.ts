@@ -13,6 +13,7 @@ import { Route as PatientRouteImport } from './routes/patient'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DoctorRouteImport } from './routes/doctor'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PatientIndexRouteImport } from './routes/patient.index'
 import { Route as PatientVitalsRouteImport } from './routes/patient.vitals'
 import { Route as PatientMedicationsRouteImport } from './routes/patient.medications'
 import { Route as PatientIntakeRouteImport } from './routes/patient.intake'
@@ -42,6 +43,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PatientIndexRoute = PatientIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PatientRoute,
 } as any)
 const PatientVitalsRoute = PatientVitalsRouteImport.update({
   id: '/vitals',
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/patient/intake': typeof PatientIntakeRoute
   '/patient/medications': typeof PatientMedicationsRoute
   '/patient/vitals': typeof PatientVitalsRoute
+  '/patient/': typeof PatientIndexRoute
   '/doctor/patient/$id': typeof DoctorPatientIdRoute
   '/patient/checkin/$day': typeof PatientCheckinDayRoute
 }
@@ -108,7 +115,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/doctor': typeof DoctorRouteWithChildren
   '/login': typeof LoginRoute
-  '/patient': typeof PatientRouteWithChildren
   '/doctor/alerts': typeof DoctorAlertsRoute
   '/doctor/schedule': typeof DoctorScheduleRoute
   '/patient/chat': typeof PatientChatRoute
@@ -116,6 +122,7 @@ export interface FileRoutesByTo {
   '/patient/intake': typeof PatientIntakeRoute
   '/patient/medications': typeof PatientMedicationsRoute
   '/patient/vitals': typeof PatientVitalsRoute
+  '/patient': typeof PatientIndexRoute
   '/doctor/patient/$id': typeof DoctorPatientIdRoute
   '/patient/checkin/$day': typeof PatientCheckinDayRoute
 }
@@ -132,6 +139,7 @@ export interface FileRoutesById {
   '/patient/intake': typeof PatientIntakeRoute
   '/patient/medications': typeof PatientMedicationsRoute
   '/patient/vitals': typeof PatientVitalsRoute
+  '/patient/': typeof PatientIndexRoute
   '/doctor/patient/$id': typeof DoctorPatientIdRoute
   '/patient/checkin/$day': typeof PatientCheckinDayRoute
 }
@@ -149,6 +157,7 @@ export interface FileRouteTypes {
     | '/patient/intake'
     | '/patient/medications'
     | '/patient/vitals'
+    | '/patient/'
     | '/doctor/patient/$id'
     | '/patient/checkin/$day'
   fileRoutesByTo: FileRoutesByTo
@@ -156,7 +165,6 @@ export interface FileRouteTypes {
     | '/'
     | '/doctor'
     | '/login'
-    | '/patient'
     | '/doctor/alerts'
     | '/doctor/schedule'
     | '/patient/chat'
@@ -164,6 +172,7 @@ export interface FileRouteTypes {
     | '/patient/intake'
     | '/patient/medications'
     | '/patient/vitals'
+    | '/patient'
     | '/doctor/patient/$id'
     | '/patient/checkin/$day'
   id:
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/patient/intake'
     | '/patient/medications'
     | '/patient/vitals'
+    | '/patient/'
     | '/doctor/patient/$id'
     | '/patient/checkin/$day'
   fileRoutesById: FileRoutesById
@@ -219,6 +229,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/patient/': {
+      id: '/patient/'
+      path: '/'
+      fullPath: '/patient/'
+      preLoaderRoute: typeof PatientIndexRouteImport
+      parentRoute: typeof PatientRoute
     }
     '/patient/vitals': {
       id: '/patient/vitals'
@@ -307,6 +324,7 @@ interface PatientRouteChildren {
   PatientIntakeRoute: typeof PatientIntakeRoute
   PatientMedicationsRoute: typeof PatientMedicationsRoute
   PatientVitalsRoute: typeof PatientVitalsRoute
+  PatientIndexRoute: typeof PatientIndexRoute
   PatientCheckinDayRoute: typeof PatientCheckinDayRoute
 }
 
@@ -316,6 +334,7 @@ const PatientRouteChildren: PatientRouteChildren = {
   PatientIntakeRoute: PatientIntakeRoute,
   PatientMedicationsRoute: PatientMedicationsRoute,
   PatientVitalsRoute: PatientVitalsRoute,
+  PatientIndexRoute: PatientIndexRoute,
   PatientCheckinDayRoute: PatientCheckinDayRoute,
 }
 
