@@ -1,8 +1,8 @@
 import { createFileRoute, Link, Outlet, useNavigate } from '@tanstack/react-router';
 import { Home, Pill, Activity, MessageCircle, History, Bell, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { usePatientData } from '@/hooks/usePatientData';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute('/patient')({
   component: PatientLayout,
@@ -11,7 +11,29 @@ export const Route = createFileRoute('/patient')({
 function PatientLayout() {
   const { user, profile, loading, signOut } = useAuth();
   const navigate = useNavigate();
-  const { ehrIntake, notifications, loading: dataLoading } = usePatientData(user?.id);
+  const [ehrIntake, setEhrIntake] = useState<any>(undefined); // undefined = not yet loaded
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
+
+  // Lightweight queries — no realtime channels
+  useEffect(() => {
+    if (!user?.id) {
+      setDataLoading(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const [ehr, notif] = await Promise.all([
+        supabase.from('ehr_intake_responses').select('id').eq('patient_id', user.id).maybeSingle(),
+        supabase.from('notifications').select('id, read').eq('patient_id', user.id).eq('read', false),
+      ]);
+      if (cancelled) return;
+      setEhrIntake(ehr.data);
+      setNotifications(notif.data || []);
+      setDataLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -20,7 +42,7 @@ function PatientLayout() {
   }, [loading, user]);
 
   useEffect(() => {
-    if (!loading && !dataLoading && user && !ehrIntake) {
+    if (!loading && !dataLoading && user && ehrIntake === null) {
       navigate({ to: '/patient/intake' });
     }
   }, [loading, dataLoading, user, ehrIntake]);
@@ -33,7 +55,7 @@ function PatientLayout() {
     );
   }
 
-  const unreadCount = notifications.filter((n: any) => !n.read).length;
+  const unreadCount = notifications.length;
 
   return (
     <div className="min-h-screen bg-lau-bg">
