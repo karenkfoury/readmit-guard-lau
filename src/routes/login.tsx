@@ -67,6 +67,14 @@ function LoginPage() {
     setLoading(false);
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-lau-bg flex items-center justify-center">
+        <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-lau-bg flex flex-col">
       {/* Top bar */}
