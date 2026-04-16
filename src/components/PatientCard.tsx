@@ -2,13 +2,16 @@ import { Link } from '@tanstack/react-router';
 import type { Patient } from '@/types';
 import { RiskBadge, RiskTrendArrow } from './RiskBadge';
 import { cn } from '@/lib/utils';
-import { Pill, AlertTriangle } from 'lucide-react';
+import { Pill, AlertTriangle, Users, UserCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { getRiskCategoryLabel, getNotificationTarget } from '@/lib/riskEngine';
 
 export function PatientCard({ patient, index = 0 }: { patient: Patient; index?: number }) {
   const latestCheckIn = patient.checkIns.filter(c => c.status === 'completed').pop();
   const needsFollowUp = patient.riskScore > 70;
   const isHigh = patient.riskScore > 70;
+  const categoryLabel = getRiskCategoryLabel(patient.riskScore);
+  const notification = getNotificationTarget(patient.riskScore);
 
   return (
     <motion.div
@@ -22,15 +25,34 @@ export function PatientCard({ patient, index = 0 }: { patient: Patient; index?: 
           isHigh && 'border-l-4 border-l-risk-high border-lau-border',
           !isHigh && 'border-lau-border',
         )}>
-          <div className="flex items-start justify-between mb-3">
+          <div className="flex items-start justify-between mb-2">
             <div>
-              <h3 className="font-heading font-semibold text-lau-anthracite">{patient.name}</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-heading font-semibold text-lau-anthracite">{patient.name}</h3>
+                <span className="text-sm font-heading font-bold tabular-nums text-lau-anthracite">{patient.riskScore}%</span>
+              </div>
               <p className="text-sm text-muted-foreground font-body">{patient.age}yo · {patient.diagnosis}</p>
             </div>
             <div className="flex items-center gap-2">
               <RiskTrendArrow current={patient.riskScore} previous={patient.previousRiskScore} />
               <RiskBadge score={patient.riskScore} />
             </div>
+          </div>
+
+          {/* Risk category label */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className={cn(
+              'text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wide',
+              isHigh && 'bg-risk-high-bg text-risk-high',
+              !isHigh && patient.riskScore >= 40 && 'bg-risk-moderate-bg text-risk-moderate',
+              patient.riskScore < 40 && 'bg-risk-low-bg text-risk-low',
+            )}>
+              {categoryLabel}
+            </span>
+            <span className="text-[10px] text-muted-foreground font-body flex items-center gap-1">
+              {isHigh ? <Users className="h-3 w-3" strokeWidth={1.75} /> : <UserCheck className="h-3 w-3" strokeWidth={1.75} />}
+              {notification.target}
+            </span>
           </div>
 
           <div className="flex flex-wrap gap-2 mb-3">
