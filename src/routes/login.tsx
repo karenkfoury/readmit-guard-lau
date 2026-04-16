@@ -64,7 +64,6 @@ function LoginPage() {
     } catch (err: any) {
       setError(err?.message || 'Something went wrong');
     }
-    }
     setLoading(false);
   };
 
