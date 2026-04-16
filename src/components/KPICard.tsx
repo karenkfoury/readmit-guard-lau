@@ -6,7 +6,6 @@ export function KPICard({ label, value, icon, className }: { label: string; valu
   const [display, setDisplay] = useState(0);
 
   useEffect(() => {
-    let start = 0;
     const duration = 1200;
     const startTime = performance.now();
     function animate(now: number) {
@@ -25,16 +24,16 @@ export function KPICard({ label, value, icon, className }: { label: string; valu
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       className={cn(
-        'rounded-xl border border-lau-border bg-card p-5 shadow-sm',
+        'rounded-2xl border border-lau-border bg-card p-5 shadow-sm',
         className,
       )}
     >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-muted-foreground font-body">{label}</p>
-          <p className="text-3xl font-bold font-heading text-foreground tabular-nums mt-1">{display}</p>
+          <p className="text-3xl font-bold font-heading text-lau-anthracite tabular-nums mt-1">{display}</p>
         </div>
-        <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+        <div className="h-12 w-12 rounded-full bg-lau-green-tint flex items-center justify-center text-primary">
           {icon}
         </div>
       </div>
