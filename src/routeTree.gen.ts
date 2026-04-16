@@ -13,7 +13,12 @@ import { Route as PatientRouteImport } from './routes/patient'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DoctorRouteImport } from './routes/doctor'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PatientIndexRouteImport } from './routes/patient.index'
+import { Route as PatientVitalsRouteImport } from './routes/patient.vitals'
+import { Route as PatientMedicationsRouteImport } from './routes/patient.medications'
+import { Route as PatientIntakeRouteImport } from './routes/patient.intake'
 import { Route as PatientHistoryRouteImport } from './routes/patient.history'
+import { Route as PatientChatRouteImport } from './routes/patient.chat'
 import { Route as DoctorScheduleRouteImport } from './routes/doctor.schedule'
 import { Route as DoctorAlertsRouteImport } from './routes/doctor.alerts'
 import { Route as PatientCheckinDayRouteImport } from './routes/patient.checkin.$day'
@@ -39,9 +44,34 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PatientIndexRoute = PatientIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PatientRoute,
+} as any)
+const PatientVitalsRoute = PatientVitalsRouteImport.update({
+  id: '/vitals',
+  path: '/vitals',
+  getParentRoute: () => PatientRoute,
+} as any)
+const PatientMedicationsRoute = PatientMedicationsRouteImport.update({
+  id: '/medications',
+  path: '/medications',
+  getParentRoute: () => PatientRoute,
+} as any)
+const PatientIntakeRoute = PatientIntakeRouteImport.update({
+  id: '/intake',
+  path: '/intake',
+  getParentRoute: () => PatientRoute,
+} as any)
 const PatientHistoryRoute = PatientHistoryRouteImport.update({
   id: '/history',
   path: '/history',
+  getParentRoute: () => PatientRoute,
+} as any)
+const PatientChatRoute = PatientChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => PatientRoute,
 } as any)
 const DoctorScheduleRoute = DoctorScheduleRouteImport.update({
@@ -72,7 +102,12 @@ export interface FileRoutesByFullPath {
   '/patient': typeof PatientRouteWithChildren
   '/doctor/alerts': typeof DoctorAlertsRoute
   '/doctor/schedule': typeof DoctorScheduleRoute
+  '/patient/chat': typeof PatientChatRoute
   '/patient/history': typeof PatientHistoryRoute
+  '/patient/intake': typeof PatientIntakeRoute
+  '/patient/medications': typeof PatientMedicationsRoute
+  '/patient/vitals': typeof PatientVitalsRoute
+  '/patient/': typeof PatientIndexRoute
   '/doctor/patient/$id': typeof DoctorPatientIdRoute
   '/patient/checkin/$day': typeof PatientCheckinDayRoute
 }
@@ -80,10 +115,14 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/doctor': typeof DoctorRouteWithChildren
   '/login': typeof LoginRoute
-  '/patient': typeof PatientRouteWithChildren
   '/doctor/alerts': typeof DoctorAlertsRoute
   '/doctor/schedule': typeof DoctorScheduleRoute
+  '/patient/chat': typeof PatientChatRoute
   '/patient/history': typeof PatientHistoryRoute
+  '/patient/intake': typeof PatientIntakeRoute
+  '/patient/medications': typeof PatientMedicationsRoute
+  '/patient/vitals': typeof PatientVitalsRoute
+  '/patient': typeof PatientIndexRoute
   '/doctor/patient/$id': typeof DoctorPatientIdRoute
   '/patient/checkin/$day': typeof PatientCheckinDayRoute
 }
@@ -95,7 +134,12 @@ export interface FileRoutesById {
   '/patient': typeof PatientRouteWithChildren
   '/doctor/alerts': typeof DoctorAlertsRoute
   '/doctor/schedule': typeof DoctorScheduleRoute
+  '/patient/chat': typeof PatientChatRoute
   '/patient/history': typeof PatientHistoryRoute
+  '/patient/intake': typeof PatientIntakeRoute
+  '/patient/medications': typeof PatientMedicationsRoute
+  '/patient/vitals': typeof PatientVitalsRoute
+  '/patient/': typeof PatientIndexRoute
   '/doctor/patient/$id': typeof DoctorPatientIdRoute
   '/patient/checkin/$day': typeof PatientCheckinDayRoute
 }
@@ -108,7 +152,12 @@ export interface FileRouteTypes {
     | '/patient'
     | '/doctor/alerts'
     | '/doctor/schedule'
+    | '/patient/chat'
     | '/patient/history'
+    | '/patient/intake'
+    | '/patient/medications'
+    | '/patient/vitals'
+    | '/patient/'
     | '/doctor/patient/$id'
     | '/patient/checkin/$day'
   fileRoutesByTo: FileRoutesByTo
@@ -116,10 +165,14 @@ export interface FileRouteTypes {
     | '/'
     | '/doctor'
     | '/login'
-    | '/patient'
     | '/doctor/alerts'
     | '/doctor/schedule'
+    | '/patient/chat'
     | '/patient/history'
+    | '/patient/intake'
+    | '/patient/medications'
+    | '/patient/vitals'
+    | '/patient'
     | '/doctor/patient/$id'
     | '/patient/checkin/$day'
   id:
@@ -130,7 +183,12 @@ export interface FileRouteTypes {
     | '/patient'
     | '/doctor/alerts'
     | '/doctor/schedule'
+    | '/patient/chat'
     | '/patient/history'
+    | '/patient/intake'
+    | '/patient/medications'
+    | '/patient/vitals'
+    | '/patient/'
     | '/doctor/patient/$id'
     | '/patient/checkin/$day'
   fileRoutesById: FileRoutesById
@@ -172,11 +230,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/patient/': {
+      id: '/patient/'
+      path: '/'
+      fullPath: '/patient/'
+      preLoaderRoute: typeof PatientIndexRouteImport
+      parentRoute: typeof PatientRoute
+    }
+    '/patient/vitals': {
+      id: '/patient/vitals'
+      path: '/vitals'
+      fullPath: '/patient/vitals'
+      preLoaderRoute: typeof PatientVitalsRouteImport
+      parentRoute: typeof PatientRoute
+    }
+    '/patient/medications': {
+      id: '/patient/medications'
+      path: '/medications'
+      fullPath: '/patient/medications'
+      preLoaderRoute: typeof PatientMedicationsRouteImport
+      parentRoute: typeof PatientRoute
+    }
+    '/patient/intake': {
+      id: '/patient/intake'
+      path: '/intake'
+      fullPath: '/patient/intake'
+      preLoaderRoute: typeof PatientIntakeRouteImport
+      parentRoute: typeof PatientRoute
+    }
     '/patient/history': {
       id: '/patient/history'
       path: '/history'
       fullPath: '/patient/history'
       preLoaderRoute: typeof PatientHistoryRouteImport
+      parentRoute: typeof PatientRoute
+    }
+    '/patient/chat': {
+      id: '/patient/chat'
+      path: '/chat'
+      fullPath: '/patient/chat'
+      preLoaderRoute: typeof PatientChatRouteImport
       parentRoute: typeof PatientRoute
     }
     '/doctor/schedule': {
@@ -226,12 +319,22 @@ const DoctorRouteWithChildren =
   DoctorRoute._addFileChildren(DoctorRouteChildren)
 
 interface PatientRouteChildren {
+  PatientChatRoute: typeof PatientChatRoute
   PatientHistoryRoute: typeof PatientHistoryRoute
+  PatientIntakeRoute: typeof PatientIntakeRoute
+  PatientMedicationsRoute: typeof PatientMedicationsRoute
+  PatientVitalsRoute: typeof PatientVitalsRoute
+  PatientIndexRoute: typeof PatientIndexRoute
   PatientCheckinDayRoute: typeof PatientCheckinDayRoute
 }
 
 const PatientRouteChildren: PatientRouteChildren = {
+  PatientChatRoute: PatientChatRoute,
   PatientHistoryRoute: PatientHistoryRoute,
+  PatientIntakeRoute: PatientIntakeRoute,
+  PatientMedicationsRoute: PatientMedicationsRoute,
+  PatientVitalsRoute: PatientVitalsRoute,
+  PatientIndexRoute: PatientIndexRoute,
   PatientCheckinDayRoute: PatientCheckinDayRoute,
 }
 
@@ -247,12 +350,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
