@@ -13,6 +13,7 @@ interface AppState {
   updateFollowUp: (id: string, updates: Partial<FollowUp>) => void;
   readmissionsPrevented: number;
   incrementPrevented: () => void;
+  addFollowUp: (followUp: FollowUp) => void;
 }
 
 export const useStore = create<AppState>((set) => ({
@@ -32,4 +33,5 @@ export const useStore = create<AppState>((set) => ({
   })),
   readmissionsPrevented: 3,
   incrementPrevented: () => set((s) => ({ readmissionsPrevented: s.readmissionsPrevented + 1 })),
+  addFollowUp: (followUp) => set((s) => ({ followUps: [...s.followUps, followUp] })),
 }));

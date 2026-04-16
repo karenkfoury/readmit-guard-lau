@@ -35,8 +35,8 @@ export function computeRiskScore(patient: Patient): { score: number; factors: Ri
 }
 
 export function getRiskLevel(score: number): 'low' | 'moderate' | 'high' {
-  if (score >= 50) return 'high';
-  if (score >= 30) return 'moderate';
+  if (score > 70) return 'high';
+  if (score >= 40) return 'moderate';
   return 'low';
 }
 
