@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
-import { Shield, Heart, DollarSign, Hospital, ArrowRight, Activity, Users, Stethoscope } from 'lucide-react';
+import {
+  Shield, Heart, DollarSign, Hospital, ArrowRight, Activity, Users, Stethoscope,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useStore } from '@/store/useStore';
 
