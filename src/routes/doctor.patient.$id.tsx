@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Phone, Calendar, UserCheck, MessageSquare, FileText } from 'lucide-react';
+import { ArrowLeft, Phone, Calendar, UserCheck, MessageSquare } from 'lucide-react';
 import { LAUHeader } from '@/components/LAUHeader';
 import { RiskGauge } from '@/components/RiskGauge';
 import { RiskBadge } from '@/components/RiskBadge';
+import { Footer } from '@/components/layout/Footer';
 import { useStore } from '@/store/useStore';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
 
@@ -25,7 +26,7 @@ function PatientDetail() {
     return (
       <div className="min-h-screen bg-lau-bg flex items-center justify-center">
         <div className="text-center">
-          <h1 className="font-heading text-2xl font-bold text-foreground">Patient not found</h1>
+          <h1 className="font-heading text-2xl font-bold text-lau-anthracite">Patient not found</h1>
           <Link to="/doctor" className="text-primary hover:underline mt-2 block font-body">Back to Dashboard</Link>
         </div>
       </div>
@@ -43,50 +44,46 @@ function PatientDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-lau-bg">
+    <div className="min-h-screen bg-lau-bg flex flex-col">
       <LAUHeader />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
-        {/* Back */}
+      <main className="flex-1 max-w-5xl mx-auto px-6 md:px-8 py-6">
         <Link to="/doctor" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary font-body mb-4">
-          <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+          <ArrowLeft className="h-4 w-4" strokeWidth={1.75} /> Back to Dashboard
         </Link>
 
-        {/* Header */}
         <div className="grid md:grid-cols-3 gap-6 mb-6">
-          <div className="md:col-span-2 rounded-xl border border-lau-border bg-card p-6 shadow-sm">
+          <div className="md:col-span-2 rounded-2xl border border-lau-border bg-card p-6 shadow-sm">
             <div className="flex items-center gap-4 mb-4">
-              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-heading font-bold text-xl">
+              <div className="h-16 w-16 rounded-full bg-lau-green-tint flex items-center justify-center text-primary font-heading font-bold text-xl">
                 {patient.name.split(' ').map(n => n[0]).join('')}
               </div>
               <div>
-                <h1 className="font-heading text-2xl font-bold text-foreground">{patient.name}</h1>
+                <h1 className="font-heading text-2xl font-bold text-lau-anthracite">{patient.name}</h1>
                 <p className="text-muted-foreground font-body">{patient.age}yo · {patient.gender === 'M' ? 'Male' : 'Female'} · {patient.diagnosis}</p>
                 <div className="flex gap-2 mt-1 flex-wrap">
                   {patient.comorbidities.map(c => (
-                    <span key={c} className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-body">{c}</span>
+                    <span key={c} className="text-xs bg-lau-bg text-muted-foreground px-2 py-0.5 rounded-full font-body">{c}</span>
                   ))}
                 </div>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-4 text-center">
-              <div className="bg-lau-bg rounded-lg p-3"><p className="text-xs text-muted-foreground font-body">Discharged</p><p className="font-semibold text-sm font-body">{patient.dischargeDate}</p></div>
-              <div className="bg-lau-bg rounded-lg p-3"><p className="text-xs text-muted-foreground font-body">Prior Admissions</p><p className="font-semibold text-sm font-body">{patient.priorAdmissions}</p></div>
-              <div className="bg-lau-bg rounded-lg p-3"><p className="text-xs text-muted-foreground font-body">Medications</p><p className="font-semibold text-sm font-body">{patient.medications.length}</p></div>
+              <div className="bg-lau-bg rounded-xl p-3"><p className="text-xs text-muted-foreground font-body">Discharged</p><p className="font-semibold text-sm font-body text-lau-anthracite">{patient.dischargeDate}</p></div>
+              <div className="bg-lau-bg rounded-xl p-3"><p className="text-xs text-muted-foreground font-body">Prior Admissions</p><p className="font-semibold text-sm font-body text-lau-anthracite">{patient.priorAdmissions}</p></div>
+              <div className="bg-lau-bg rounded-xl p-3"><p className="text-xs text-muted-foreground font-body">Medications</p><p className="font-semibold text-sm font-body text-lau-anthracite">{patient.medications.length}</p></div>
             </div>
           </div>
 
-          <div className="rounded-xl border border-lau-border bg-card p-6 shadow-sm flex flex-col items-center justify-center">
+          <div className="rounded-2xl border border-lau-border bg-card p-6 shadow-sm flex flex-col items-center justify-center">
             <RiskGauge score={patient.riskScore} size={180} />
           </div>
         </div>
 
-        {/* Why high risk */}
         {topFactors.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl border border-lau-border bg-card p-6 shadow-sm mb-6"
-          >
-            <h2 className="font-heading text-lg font-bold text-foreground mb-4">Why This Patient is {patient.riskScore >= 50 ? 'High' : 'At'} Risk</h2>
+            className="rounded-2xl border border-lau-border bg-card p-6 shadow-sm mb-6">
+            <h2 className="font-heading text-lg font-bold text-lau-anthracite mb-4">Why This Patient is {patient.riskScore >= 50 ? 'High' : 'At'} Risk</h2>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={topFactors} layout="vertical" margin={{ left: 10, right: 30 }}>
@@ -101,7 +98,7 @@ function PatientDetail() {
             <div className="space-y-2 mt-4">
               {topFactors.map((f, i) => (
                 <div key={i} className="flex items-start gap-3 text-sm font-body">
-                  <span className="font-bold text-foreground whitespace-nowrap">+{f.points} pts</span>
+                  <span className="font-bold text-lau-anthracite whitespace-nowrap">+{f.points} pts</span>
                   <span className="text-muted-foreground">{f.description}</span>
                 </div>
               ))}
@@ -110,35 +107,34 @@ function PatientDetail() {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-4 border-b border-lau-border pb-px">
+        <div className="flex gap-1 mb-4 border-b border-lau-border">
           {(['overview', 'timeline', 'surveys', 'careplan'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
-              className={`px-4 py-2 text-sm font-heading font-semibold rounded-t-lg transition-colors ${tab === t ? 'bg-card border border-lau-border border-b-card text-primary -mb-px' : 'text-muted-foreground hover:text-foreground'}`}
-            >
+              className={`px-4 py-3 text-sm font-heading font-semibold transition-colors ${tab === t ? 'text-primary border-b-2 border-primary' : 'text-lau-anthracite/50 hover:text-lau-anthracite'}`}>
               {t === 'careplan' ? 'Care Plan' : t.charAt(0).toUpperCase() + t.slice(1)}
             </button>
           ))}
         </div>
 
-        <div className="rounded-xl border border-lau-border bg-card p-6 shadow-sm min-h-[300px]">
+        <div className="rounded-2xl border border-lau-border bg-card p-6 shadow-sm min-h-[300px]">
           {tab === 'overview' && (
             <div className="space-y-4">
-              <h3 className="font-heading font-semibold text-foreground">Patient Overview</h3>
+              <h3 className="font-heading font-semibold text-lau-anthracite">Patient Overview</h3>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground font-body mb-1">Living Situation</p>
-                  <p className="font-body font-semibold text-foreground">{patient.livesAlone ? '⚠️ Lives alone' : '✓ Lives with family/support'}</p>
+                  <p className="font-body font-semibold text-lau-anthracite">{patient.livesAlone ? '⚠️ Lives alone' : '✓ Lives with family/support'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground font-body mb-1">Discharge Day</p>
-                  <p className="font-body font-semibold text-foreground">{patient.weekendDischarge ? '⚠️ Weekend discharge' : '✓ Weekday discharge'}</p>
+                  <p className="font-body font-semibold text-lau-anthracite">{patient.weekendDischarge ? '⚠️ Weekend discharge' : '✓ Weekday discharge'}</p>
                 </div>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground font-body mb-2">Current Medications</p>
                 <div className="flex flex-wrap gap-2">
                   {patient.medications.map(m => (
-                    <span key={m} className="text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-full font-body">{m}</span>
+                    <span key={m} className="text-xs bg-lau-green-tint text-primary px-2.5 py-1 rounded-full font-body">{m}</span>
                   ))}
                 </div>
               </div>
@@ -147,24 +143,24 @@ function PatientDetail() {
 
           {tab === 'timeline' && (
             <div className="space-y-6">
-              <h3 className="font-heading font-semibold text-foreground">Check-In Timeline</h3>
-              {patient.checkIns.map((c, i) => (
+              <h3 className="font-heading font-semibold text-lau-anthracite">Check-In Timeline</h3>
+              {patient.checkIns.map((c) => (
                 <div key={c.day} className="relative pl-8 pb-6 border-l-2 border-lau-border last:border-l-0">
                   <div className={`absolute left-[-9px] top-0 h-4 w-4 rounded-full border-2 ${c.status === 'completed' ? 'bg-primary border-primary' : 'bg-card border-lau-border'}`} />
                   <div className="mb-1">
-                    <span className="font-heading font-semibold text-foreground">Day {c.day}</span>
-                    <span className={`ml-2 text-xs px-2 py-0.5 rounded-full font-semibold ${c.status === 'completed' ? 'bg-primary/10 text-primary' : c.status === 'pending' ? 'bg-risk-moderate/10 text-risk-moderate' : 'bg-muted text-muted-foreground'}`}>
+                    <span className="font-heading font-semibold text-lau-anthracite">Day {c.day}</span>
+                    <span className={`ml-2 text-xs px-2 py-0.5 rounded-full font-semibold ${c.status === 'completed' ? 'bg-lau-green-tint text-primary' : c.status === 'pending' ? 'bg-risk-moderate-bg text-risk-moderate' : 'bg-lau-bg text-muted-foreground'}`}>
                       {c.status}
                     </span>
                   </div>
                   {c.completedAt && <p className="text-xs text-muted-foreground font-body">{new Date(c.completedAt).toLocaleString()}</p>}
                   {c.riskScoreAfter !== undefined && <p className="text-sm font-body mt-1">Risk after: <RiskBadge score={c.riskScoreAfter} size="sm" /></p>}
                   {c.status === 'completed' && Object.keys(c.responses).length > 0 && (
-                    <div className="mt-2 bg-lau-bg rounded-lg p-3 space-y-1">
+                    <div className="mt-2 bg-lau-bg rounded-xl p-3 space-y-1">
                       {Object.entries(c.responses).filter(([_, v]) => v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0)).map(([k, v]) => (
                         <div key={k} className="flex justify-between text-xs font-body">
                           <span className="text-muted-foreground capitalize">{k.replace(/([A-Z])/g, ' $1')}</span>
-                          <span className="text-foreground font-semibold">{Array.isArray(v) ? v.join(', ') : String(v)}</span>
+                          <span className="text-lau-anthracite font-semibold">{Array.isArray(v) ? v.join(', ') : String(v)}</span>
                         </div>
                       ))}
                     </div>
@@ -176,15 +172,15 @@ function PatientDetail() {
 
           {tab === 'surveys' && (
             <div className="space-y-4">
-              <h3 className="font-heading font-semibold text-foreground">Survey Responses</h3>
+              <h3 className="font-heading font-semibold text-lau-anthracite">Survey Responses</h3>
               {patient.checkIns.filter(c => c.status === 'completed').map(c => (
-                <div key={c.day} className="bg-lau-bg rounded-lg p-4">
-                  <h4 className="font-heading font-semibold text-foreground mb-2">Day {c.day}</h4>
+                <div key={c.day} className="bg-lau-bg rounded-xl p-4">
+                  <h4 className="font-heading font-semibold text-lau-anthracite mb-2">Day {c.day}</h4>
                   <div className="grid sm:grid-cols-2 gap-2">
                     {Object.entries(c.responses).filter(([_, v]) => v !== undefined && v !== '').map(([k, v]) => (
                       <div key={k} className="text-sm font-body">
                         <span className="text-muted-foreground capitalize">{k.replace(/([A-Z])/g, ' $1')}: </span>
-                        <span className="text-foreground font-semibold">{Array.isArray(v) ? v.join(', ') : String(v)}</span>
+                        <span className="text-lau-anthracite font-semibold">{Array.isArray(v) ? v.join(', ') : String(v)}</span>
                       </div>
                     ))}
                   </div>
@@ -195,43 +191,41 @@ function PatientDetail() {
 
           {tab === 'careplan' && (
             <div className="space-y-4">
-              <h3 className="font-heading font-semibold text-foreground">Recommended Care Plan</h3>
+              <h3 className="font-heading font-semibold text-lau-anthracite">Recommended Care Plan</h3>
               {patient.carePlan ? (
                 <div className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="bg-lau-bg rounded-lg p-4">
+                    <div className="bg-lau-bg rounded-xl p-4">
                       <p className="text-xs text-muted-foreground font-body mb-1">Suggested Assignee</p>
-                      <p className="font-heading font-semibold text-foreground">{patient.carePlan.suggestedAssignee}</p>
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full capitalize font-body">{patient.carePlan.suggestedRole.replace('_', ' ')}</span>
+                      <p className="font-heading font-semibold text-lau-anthracite">{patient.carePlan.suggestedAssignee}</p>
+                      <span className="text-xs bg-lau-green-tint text-primary px-2 py-0.5 rounded-full capitalize font-body">{patient.carePlan.suggestedRole.replace('_', ' ')}</span>
                     </div>
-                    <div className="bg-lau-bg rounded-lg p-4">
+                    <div className="bg-lau-bg rounded-xl p-4">
                       <p className="text-xs text-muted-foreground font-body mb-1">Suggested Action</p>
-                      <p className="font-heading font-semibold text-foreground">{patient.carePlan.suggestedAction}</p>
+                      <p className="font-heading font-semibold text-lau-anthracite">{patient.carePlan.suggestedAction}</p>
                     </div>
                   </div>
-                  <div className="bg-lau-bg rounded-lg p-4">
+                  <div className="bg-lau-bg rounded-xl p-4">
                     <p className="text-xs text-muted-foreground font-body mb-1">Reason</p>
-                    <p className="font-body text-foreground">{patient.carePlan.reason}</p>
+                    <p className="font-body text-lau-anthracite">{patient.carePlan.reason}</p>
                   </div>
 
-                  {/* Action buttons */}
                   <div className="flex flex-wrap gap-3 pt-2">
                     {!scheduled ? (
-                      <button onClick={handleSchedule} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-heading font-semibold hover:bg-lau-green-dark transition-colors">
-                        <Calendar className="h-4 w-4" /> Mark Follow-Up Scheduled
+                      <button onClick={handleSchedule} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-full font-heading font-semibold hover:bg-lau-green-dark hover:shadow-md transition-all active:scale-[0.98]">
+                        <Calendar className="h-4 w-4" strokeWidth={1.75} /> Mark Follow-Up Scheduled
                       </button>
                     ) : (
                       <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-                        className="inline-flex items-center gap-2 bg-risk-low/10 text-risk-low px-5 py-2.5 rounded-xl font-heading font-semibold"
-                      >
-                        <UserCheck className="h-4 w-4" /> ✓ Follow-Up Scheduled — Readmission Prevented!
+                        className="inline-flex items-center gap-2 bg-risk-low-bg text-risk-low px-5 py-2.5 rounded-full font-heading font-semibold">
+                        <UserCheck className="h-4 w-4" strokeWidth={1.75} /> ✓ Follow-Up Scheduled — Readmission Prevented!
                       </motion.div>
                     )}
-                    <button className="inline-flex items-center gap-2 border border-lau-border px-4 py-2 rounded-xl font-body text-sm hover:bg-accent transition-colors">
-                      <Phone className="h-4 w-4" /> Call Patient
+                    <button className="inline-flex items-center gap-2 border border-lau-border px-4 py-2 rounded-full font-body text-sm text-lau-anthracite hover:bg-lau-green-tint transition-colors">
+                      <Phone className="h-4 w-4" strokeWidth={1.75} /> Call Patient
                     </button>
-                    <button className="inline-flex items-center gap-2 border border-lau-border px-4 py-2 rounded-xl font-body text-sm hover:bg-accent transition-colors">
-                      <MessageSquare className="h-4 w-4" /> Add Note
+                    <button className="inline-flex items-center gap-2 border border-lau-border px-4 py-2 rounded-full font-body text-sm text-lau-anthracite hover:bg-lau-green-tint transition-colors">
+                      <MessageSquare className="h-4 w-4" strokeWidth={1.75} /> Add Note
                     </button>
                   </div>
                 </div>
@@ -242,6 +236,8 @@ function PatientDetail() {
           )}
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

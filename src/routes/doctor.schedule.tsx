@@ -1,10 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { LAUHeader } from '@/components/LAUHeader';
 import { RiskBadge } from '@/components/RiskBadge';
+import { Footer } from '@/components/layout/Footer';
 import { useStore } from '@/store/useStore';
-import type { FollowUp } from '@/types';
 
 export const Route = createFileRoute('/doctor/schedule')({
   component: SchedulePage,
@@ -29,36 +28,35 @@ function SchedulePage() {
   };
 
   return (
-    <div className="min-h-screen bg-lau-bg">
+    <div className="min-h-screen bg-lau-bg flex flex-col">
       <LAUHeader />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <h1 className="font-heading text-2xl font-bold text-foreground mb-6">Schedule & Follow-Ups</h1>
+      <main className="flex-1 max-w-[1280px] mx-auto px-6 md:px-8 py-6">
+        <h1 className="font-heading text-2xl md:text-3xl font-bold text-lau-anthracite mb-6">Schedule & Follow-Ups</h1>
 
         <div className="grid md:grid-cols-4 gap-4">
           {columns.map(col => (
             <div key={col.key}>
               <div className={`mb-3 flex items-center gap-2 pb-2 border-b-2 ${col.color}`}>
-                <h2 className="font-heading font-semibold text-foreground">{col.label}</h2>
-                <span className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">{grouped[col.key].length}</span>
+                <h2 className="font-heading font-semibold text-lau-anthracite">{col.label}</h2>
+                <span className="text-xs bg-lau-bg text-muted-foreground px-2 py-0.5 rounded-full font-body">{grouped[col.key].length}</span>
               </div>
               <div className="space-y-3">
                 {grouped[col.key].map((f, i) => (
                   <motion.div key={f.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                    className="rounded-xl border border-lau-border bg-card p-4 shadow-sm"
-                  >
+                    className="rounded-2xl border border-lau-border bg-card p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-heading font-semibold text-sm text-foreground">{f.patientName}</h3>
+                      <h3 className="font-heading font-semibold text-sm text-lau-anthracite">{f.patientName}</h3>
                       <RiskBadge score={f.riskScore} size="sm" />
                     </div>
                     <p className="text-xs text-muted-foreground font-body mb-1">{f.reason}</p>
                     <p className="text-xs text-muted-foreground font-body mb-2">📅 {f.suggestedDate}</p>
                     <div className="flex items-center justify-between">
                       <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase ${
-                        f.priority === 'urgent' ? 'bg-risk-high/10 text-risk-high' :
-                        f.priority === 'high' ? 'bg-risk-moderate/10 text-risk-moderate' :
-                        f.priority === 'medium' ? 'bg-primary/10 text-primary' :
-                        'bg-muted text-muted-foreground'
+                        f.priority === 'urgent' ? 'bg-risk-high-bg text-risk-high' :
+                        f.priority === 'high' ? 'bg-risk-moderate-bg text-risk-moderate' :
+                        f.priority === 'medium' ? 'bg-lau-green-tint text-primary' :
+                        'bg-lau-bg text-muted-foreground'
                       }`}>
                         {f.priority}
                       </span>
@@ -66,8 +64,7 @@ function SchedulePage() {
                     </div>
                     {col.key !== 'completed' && (
                       <button onClick={() => updateFollowUp(f.id, { status: 'completed' })}
-                        className="w-full mt-3 text-xs py-1.5 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-lau-green-dark transition-colors"
-                      >
+                        className="w-full mt-3 text-xs py-2 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-lau-green-dark transition-colors">
                         Mark Complete
                       </button>
                     )}
@@ -81,6 +78,8 @@ function SchedulePage() {
           ))}
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }
