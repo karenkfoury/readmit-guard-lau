@@ -16,19 +16,15 @@ export function PatientCard({ patient, index = 0 }: { patient: Patient; index?: 
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
     >
-      <Link
-        to="/doctor/patient/$id"
-        params={{ id: patient.id }}
-        className="block"
-      >
+      <Link to="/doctor/patient/$id" params={{ id: patient.id }} className="block">
         <div className={cn(
-          'rounded-xl border bg-card p-4 shadow-sm hover:shadow-md transition-all cursor-pointer',
-          isHigh && 'border-l-4 border-l-risk-high',
+          'rounded-2xl border bg-card p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer',
+          isHigh && 'border-l-4 border-l-risk-high border-lau-border',
           !isHigh && 'border-lau-border',
         )}>
           <div className="flex items-start justify-between mb-3">
             <div>
-              <h3 className="font-heading font-semibold text-foreground">{patient.name}</h3>
+              <h3 className="font-heading font-semibold text-lau-anthracite">{patient.name}</h3>
               <p className="text-sm text-muted-foreground font-body">{patient.age}yo · {patient.diagnosis}</p>
             </div>
             <div className="flex items-center gap-2">
@@ -39,20 +35,18 @@ export function PatientCard({ patient, index = 0 }: { patient: Patient; index?: 
 
           <div className="flex flex-wrap gap-2 mb-3">
             {latestCheckIn && (
-              <span className="inline-flex items-center text-xs bg-primary/10 text-primary rounded-full px-2 py-0.5 font-body">
+              <span className="inline-flex items-center text-xs bg-lau-green-tint text-primary rounded-full px-2 py-0.5 font-body font-semibold">
                 Day {latestCheckIn.day} ✓
               </span>
             )}
             {patient.medications.length >= 5 && (
-              <span className="inline-flex items-center text-xs text-muted-foreground gap-1">
-                <Pill className="h-3 w-3" />
-                {patient.medications.length} meds
+              <span className="inline-flex items-center text-xs text-muted-foreground gap-1 font-body">
+                <Pill className="h-3 w-3" strokeWidth={1.75} /> {patient.medications.length} meds
               </span>
             )}
             {needsFollowUp && (
-              <span className="inline-flex items-center text-xs bg-risk-high/10 text-risk-high rounded-full px-2 py-0.5 font-semibold gap-1">
-                <AlertTriangle className="h-3 w-3" />
-                Needs Follow-Up
+              <span className="inline-flex items-center text-xs bg-risk-high-bg text-risk-high rounded-full px-2 py-0.5 font-semibold gap-1">
+                <AlertTriangle className="h-3 w-3" strokeWidth={1.75} /> Needs Follow-Up
               </span>
             )}
           </div>
